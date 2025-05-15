@@ -3,7 +3,7 @@
     <!-- Preview o imagen por defecto -->
     <div v-if="modelValue" class="image-preview group">
       <img :src="imageSrc" :alt="altText"
-        class="preview-image max-w-[180px] max-h-[180px] object-contain border rounded"
+        class="preview-image max-w-[180px] max-h-[180px] object-contain border rounded border-gray-300 shadow-sm blur-xs hover:blur-none transition-all duration-300"
         :class="{ 'opacity-40': uploading }" />
 
       <!-- Botones de acción -->
@@ -20,8 +20,11 @@
       </div>
 
       <!-- Barra de progreso -->
-      <div v-if="uploading" class="upload-progress mt-1 bg-gray-200 h-1 rounded overflow-hidden">
-        <div class="bg-blue-500 h-full" :style="{ width: `${uploadProgress}%` }"></div>
+      <div v-if="uploading" class="upload-progress mt-1 rounded-full bg-gray-200 h-4  overflow-hidden dark:bg-gray-700">
+        <div class="bg-blue-500 h-4 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full"
+          :style="{ width: `${uploadProgress}%` }">
+          {{ uploadProgress }}%
+        </div>
       </div>
     </div>
 
@@ -88,7 +91,7 @@ const imageSrc = computed(() => {
   if (props.modelValue instanceof File) {
     return previewUrl.value || URL.createObjectURL(props.modelValue)
   }
-  //http://127.0.0.1:8000/storage/categories/aGnalkE0nYP7p9JdLGVt.webp
+
 
   if (typeof props.modelValue === 'string' && props.modelValue !== '') {
     return props.modelValue.startsWith('http') ?
@@ -177,9 +180,4 @@ watch(() => props.modelValue, (newVal) => {
 })
 </script>
 
-<style scoped>
-.image-uploader {
-  display: flex;
-  flex-direction: column;
-}
-</style>
+<style scoped></style>

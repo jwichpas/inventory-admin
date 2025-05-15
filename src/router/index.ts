@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+
 import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
 import AdminLayoutView from '@/layouts/MainLayoutView.vue'
@@ -10,6 +10,8 @@ import ProductIndexView from '@/views/products/IndexView.vue'
 import ProductCreateView from '@/views/products/CreateView.vue'
 import CategoryIndexView from '@/views/categories/IndexView.vue'
 import CategoryCreateEditView from '@/views/categories/CreateEditView.vue'
+import BrandsView from '@/views/brands/BrandsView.vue'
+import BrandsCreateView from '@/views/brands/BrandsCreateView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -58,14 +60,32 @@ const router = createRouter({
         {
           path: '/categories/create',
           name: 'categories.create',
-          component: () => CategoryCreateEditView,
+          component: CategoryCreateEditView,
           meta: { title: 'Nueva Categoría', requiresAuth: true },
         },
         {
           path: '/categories/edit/:id',
           name: 'categories.edit',
-          component: () => CategoryCreateEditView,
+          component: CategoryCreateEditView,
           meta: { title: 'Editar Categoría', requiresAuth: true },
+        },
+        {
+          path: '/brands',
+          name: 'brands',
+          component: BrandsView,
+          meta: { title: 'Marcas', requiresAuth: true },
+        },
+        {
+          path: '/brands/create',
+          name: 'brands.create',
+          component: BrandsCreateView,
+          meta: { title: 'Nueva Marca', requiresAuth: true },
+        },
+        {
+          path: '/brands/edit/:id',
+          name: 'brands.edit',
+          component: BrandsCreateView,
+          meta: { title: 'Editar Marca', requiresAuth: true },
         },
       ],
     },

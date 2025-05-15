@@ -343,6 +343,7 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import api from '@/services/api'
 import {
   ArrowLeftIcon,
   PlusIcon,
@@ -409,19 +410,14 @@ onMounted(async () => {
 
 // Métodos para cargar datos (simulados)
 const fetchCategories = async () => {
-  return [
-    { id: 1, name: 'Electrónicos' },
-    { id: 2, name: 'Ropa' },
-    { id: 3, name: 'Hogar' }
-  ]
+  const response = await api.get('/categories')
+  console.log(response.data)
+  return response.data
 }
 
 const fetchBrands = async () => {
-  return [
-    { id: 1, name: 'Sony' },
-    { id: 2, name: 'Samsung' },
-    { id: 3, name: 'LG' }
-  ]
+  const response = await api.get('/brands')
+  return response.data
 }
 
 const fetchUnits = async () => {

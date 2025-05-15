@@ -4,12 +4,12 @@
     <div class="flex justify-between items-center mb-6">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">
-          {{ isEditing ? 'Editar Categoría' : 'Crear Nueva Categoría' }}
+          {{ isEditing ? 'Editar Marca' : 'Crear Nueva Marca' }}
         </h1>
         <p class="text-sm text-gray-500 mt-1">Complete todos los campos requeridos</p>
       </div>
 
-      <router-link to="/categories"
+      <router-link to="/brands"
         class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
         <ArrowLeftIcon class="mr-2 h-5 w-5" />
         Volver
@@ -50,15 +50,17 @@
 
             <!-- Imagen -->
             <div class="sm:col-span-6 ">
-              <label class="block text-sm font-medium text-gray-700 mb-2">Imagen</label>
-
+              <label class="block text-sm font-medium text-gray-700 mb-2">Logo</label>
               <ImageUploader v-model="form.image" />
-              <!-- <div class="mt-4">
-                <label class="block text-sm text-gray-500 mb-1">Vista previa:</label>
-                <img v-lazy="getImageUrl(form.image)" alt="Vista previa de la categoría"
-                  class="w-32 h-32 object-cover rounded border border-gray-200" />
-              </div> -->
+            </div>
 
+            <!-- Descripción -->
+            <div class="sm:col-span-6">
+              <label for="description" class="block text-sm font-medium text-gray-700">
+                Descripción
+              </label>
+              <textarea id="description" v-model="form.description" rows="3"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
             </div>
           </div>
         </div>
@@ -94,13 +96,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
 import ImageUploader from '@/components/ImageUploader.vue'
-import { useCategories } from '@/composables/useCategories';
+import { useBrands } from '@/composables/useBrands';
 import Api from '@/services/api'
 import { debounce } from 'lodash-es';
 
-const { validateCodeHybrid, isCheckingCode, currentEnterprise } = useCategories();
+const { validateCodeHybrid, isCheckingCode, currentEnterprise } = useBrands();
 
-currentEnterprise.value = (localStorage.getItem('empresa_id') || '1');
+currentEnterprise.value = localStorage.getItem('empresa_id') || '1';
 
 const route = useRoute()
 const router = useRouter()
@@ -108,26 +110,30 @@ const router = useRouter()
 const loading = ref(false)
 const errors = ref<FormErrors>({})
 
-interface CategoryForm {
+interface BrandForm {
   id: number | null;
   id_empresa: number | null;
   name: string;
   codigo: string;
   image: File | string | null;
+  description: string;
 }
+
 interface FormErrors {
   name?: string;
   codigo?: string;
 }
-const form = ref<CategoryForm>({
+
+const form = ref<BrandForm>({
   id: null,
   id_empresa: null,
   name: '',
   codigo: '',
-  image: null
+  image: null,
+  description: ''
 })
 
-const isEditing = computed(() => route.name === 'categories.edit')
+const isEditing = computed(() => route.name === 'brands.edit')
 const codeError = ref('');
 const isSubmitting = ref(false);
 
@@ -135,16 +141,14 @@ const isSubmitting = ref(false);
 onMounted(async () => {
   if (isEditing.value) {
     try {
-      // Simular carga de la categoría a editar
-      const response = await fetch(`http://localhost:8000/api/categories/${route.params.id}`);
+      const response = await fetch(`http://localhost:8000/api/brands/${route.params.id}`);
       form.value = await response.json();
     } catch (error) {
-      console.error('Error cargando categoría:', error)
-      showNotification('Error al cargar la categoría', 'error')
-      router.push('/categories')
+      console.error('Error cargando marca:', error)
+      showNotification('Error al cargar la marca', 'error')
+      router.push('/brands')
     }
   } else {
-    // Establecer empresa_id por defecto (podría venir de un store o localStorage)
     form.value.id_empresa = +(localStorage.getItem('empresa_id') || '1');
   }
 })
@@ -177,26 +181,22 @@ const submitForm = async () => {
 
   try {
     const formData = new FormData();
-    /* formData.append('id_empresa', localStorage.getItem('empresa_id')); */
     formData.append('id_empresa', String(form.value.id_empresa));
     formData.append('name', form.value.name);
     formData.append('codigo', form.value.codigo);
+    formData.append('description', form.value.description);
 
-    // Manejo mejorado de la imagen
     if (form.value.image) {
       if (form.value.image instanceof File) {
-        formData.append('image', form.value.image); // Archivo binario
+        formData.append('image', form.value.image);
       } else if (typeof form.value.image === 'string' && form.value.image.startsWith('http')) {
-        // Si es una URL existente (para edición)
         formData.append('image_url', form.value.image);
       } else if (typeof form.value.image === 'string' && form.value.image.startsWith('data:')) {
-        // Si es base64 (convertir a Blob)
         const blob = dataURLtoBlob(form.value.image);
         formData.append('image', blob, 'image.png');
       }
     }
 
-    // Configuración de headers para FormData
     const config = {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -206,22 +206,22 @@ const submitForm = async () => {
 
     if (isEditing.value) {
       formData.append('_method', 'PUT');
-      await Api.post(`/categories/${form.value.id}`, formData, config);
-      showNotification('Categoría actualizada correctamente', 'success');
+      await Api.post(`/brands/${form.value.id}`, formData, config);
+      showNotification('Marca actualizada correctamente', 'success');
     } else {
-      await Api.post('/categories', formData, config);
-      showNotification('Categoría creada correctamente', 'success');
+      await Api.post('/brands', formData, config);
+      showNotification('Marca creada correctamente', 'success');
     }
 
-    router.push('/categories');
+    router.push('/brands');
   } catch (error) {
-    console.error('Error guardando categoría:', error);
+    console.error('Error guardando marca:', error);
 
     if (error.response?.status === 422) {
       errors.value = error.response.data.errors;
     } else {
       showNotification(
-        error.response?.data?.message || 'Error al guardar la categoría',
+        error.response?.data?.message || 'Error al guardar la marca',
         'error'
       );
     }
@@ -230,6 +230,7 @@ const submitForm = async () => {
     isSubmitting.value = false;
   }
 };
+
 const validateCode = debounce(async () => {
   if (!form.value.codigo) {
     codeError.value = 'El código es requerido';
@@ -261,7 +262,7 @@ function dataURLtoBlob(dataurl) {
 
 // Cancelar
 const cancel = () => {
-  router.push('/categories')
+  router.push('/brands')
 }
 
 // Helper para mostrar notificaciones

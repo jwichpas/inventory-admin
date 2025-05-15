@@ -180,7 +180,7 @@ const navigation = [
       { name: 'Subcategoria', to: '/products/subcategory' },
       { name: 'Unidad de medida', to: '/products/measure-unit' },
       { name: 'Tipo de producto', to: '/products/product-type' },
-      { name: 'Marca', to: '/products/brand' }
+      { name: 'Marca', to: '/brands' }
     ]
   },
   { name: 'Movimientos', to: '/movements', icon: DocumentDuplicateIcon },
