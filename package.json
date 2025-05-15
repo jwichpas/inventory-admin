@@ -18,11 +18,18 @@
     "@tailwindcss/postcss": "^4.1.6",
     "@tailwindcss/vite": "^4.1.6",
     "axios": "^1.9.0",
+    "lazyload": "^2.0.0-rc.2",
+    "lodash": "^4.17.21",
+    "lodash-es": "^4.17.21",
     "pinia": "^3.0.1",
     "postcss": "^8.5.3",
+    "sweetalert2": "^11.21.0",
     "tailwindcss": "^4.1.6",
+    "v-lazy-image": "^2.1.1",
     "vue": "^3.5.13",
-    "vue-router": "^4.5.0"
+    "vue-lazyload": "^3.0.0",
+    "vue-router": "^4.5.0",
+    "vue3-lazyload": "^0.3.8"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.1",

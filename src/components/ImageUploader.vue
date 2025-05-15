@@ -1,54 +1,48 @@
 <template>
   <div class="image-uploader">
-    <!-- Preview de la imagen existente o placeholder -->
+    <!-- Preview o imagen por defecto -->
     <div v-if="modelValue" class="image-preview group">
-      <img :src="imageSrc" :alt="altText" class="preview-image preview-image max-w-[180px] max-h-[180px] object-contain"
+      <img :src="imageSrc" :alt="altText"
+        class="preview-image max-w-[180px] max-h-[180px] object-contain border rounded"
         :class="{ 'opacity-40': uploading }" />
 
-      <!-- Overlay con acciones -->
-      <div class="image-actions">
-        <label class="action-button change-button">
+      <!-- Botones de acción -->
+      <div class="image-actions mt-1 flex gap-2">
+        <label class="action-button change-button cursor-pointer">
           <PencilIcon class="h-4 w-4" />
-          <span class="sr-only">Cambiar imagen</span>
           <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileChange" />
         </label>
-        <button type="button" @click="removeImage" class="action-button remove-button" :disabled="uploading">
+
+        <button type="button" @click="removeImage" class="action-button remove-button text-red-600"
+          :disabled="uploading">
           <TrashIcon class="h-4 w-4" />
-          <span class="sr-only">Eliminar imagen</span>
         </button>
       </div>
 
       <!-- Barra de progreso -->
-      <div v-if="uploading" class="upload-progress">
-        <div class="progress-bar" :style="{ width: `${uploadProgress}%` }"></div>
+      <div v-if="uploading" class="upload-progress mt-1 bg-gray-200 h-1 rounded overflow-hidden">
+        <div class="bg-blue-500 h-full" :style="{ width: `${uploadProgress}%` }"></div>
       </div>
     </div>
 
     <!-- Estado vacío -->
     <div v-else class="empty-state">
-      <label class="upload-label">
-        <PhotoIcon class="icon" />
-        <span class="text">{{ placeholderText }}</span>
+      <label class="upload-label cursor-pointer inline-flex flex-col items-center text-gray-500 text-sm">
+        <PhotoIcon class=" mb-2 max-w-xs" />
+        <span>{{ placeholderText }}</span>
         <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="handleFileChange" />
       </label>
     </div>
 
     <!-- Mensaje de error -->
-    <p v-if="error" class="error-message">
-      <ExclamationCircleIcon class="h-4 w-4 inline mr-1" />
+    <p v-if="error" class="text-red-500 text-sm mt-1 flex items-center gap-1">
+      <ExclamationCircleIcon class="h-4 w-4" />
       {{ error }}
     </p>
-
-    <!-- Previsualización antes de subir -->
-    <div v-if="previewUrl && !modelValue" class="mt-2">
-      <p class="text-xs text-gray-500 mb-1">Vista previa:</p>
-      <img :src="previewUrl" class="preview-thumbnail max-w-[180px] max-h-[180px]"
-        :class="{ 'opacity-40': uploading }" />
-    </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import {
   PhotoIcon,
@@ -69,42 +63,51 @@ const props = defineProps({
   },
   maxSize: {
     type: Number,
-    default: 2 // 2MB
+    default: 2 // MB
   },
   allowedTypes: {
     type: Array,
     default: () => ['image/jpeg', 'image/png', 'image/webp']
+  },
+  defaultImage: {
+    type: String,
+    default: '/images/default-category.png'
   }
 })
 
 const emit = defineEmits(['update:modelValue', 'upload-progress'])
 
-const fileInput = ref(null)
+const fileInput = ref<HTMLInputElement | null>(null)
 const previewUrl = ref('')
 const uploading = ref(false)
 const uploadProgress = ref(0)
 const error = ref('')
 
-// Generar URL para la imagen actual
+// Muestra la imagen según el tipo de modelValue
 const imageSrc = computed(() => {
-  if (!props.modelValue) return ''
-  if (typeof props.modelValue === 'string') {
-    // Si es un string, asumimos que es una URL o path
+  if (props.modelValue instanceof File) {
+    return previewUrl.value || URL.createObjectURL(props.modelValue)
+  }
+  //http://127.0.0.1:8000/storage/categories/aGnalkE0nYP7p9JdLGVt.webp
+
+  if (typeof props.modelValue === 'string' && props.modelValue !== '') {
     return props.modelValue.startsWith('http') ?
       props.modelValue :
-      `/storage/${props.modelValue}`
+      `http://127.0.0.1:8000/storage/${props.modelValue}`
   }
-  return previewUrl.value
+
+  return props.defaultImage
 })
 
-// Manejar cambio de archivo
-const handleFileChange = (e) => {
-  const file = e.target.files[0]
+// Manejo del cambio de archivo
+const handleFileChange = (e: Event) => {
+  const input = e.target as HTMLInputElement
+  const file = input.files?.[0]
   if (!file) return
 
-  // Validar tipo de archivo
+  // Validar tipo
   if (!props.allowedTypes.includes(file.type)) {
-    error.value = `Formato no soportado. Use: ${props.allowedTypes.join(', ')}`
+    error.value = `Formato no soportado. Usa: ${props.allowedTypes.join(', ')}`
     resetInput()
     return
   }
@@ -118,15 +121,16 @@ const handleFileChange = (e) => {
 
   error.value = ''
 
-  // Crear preview
+  // Crear vista previa
   const reader = new FileReader()
   reader.onload = (e) => {
-    previewUrl.value = e.target.result
+    previewUrl.value = e.target?.result as string
   }
   reader.readAsDataURL(file)
 
-  // Emitir el archivo al padre
   emit('update:modelValue', file)
+
+  simulateUpload()
 }
 
 // Eliminar imagen
@@ -136,37 +140,36 @@ const removeImage = () => {
   resetInput()
 }
 
-// Resetear input file
+// Limpiar input file para poder volver a seleccionar la misma imagen
 const resetInput = () => {
   if (fileInput.value) {
     fileInput.value.value = ''
   }
 }
 
-// Simular progreso de subida (en un caso real, usaría axios onUploadProgress)
+// Simular progreso de subida
 const simulateUpload = () => {
   uploading.value = true
   uploadProgress.value = 0
 
   const interval = setInterval(() => {
-    uploadProgress.value += 10
+    uploadProgress.value += 15
     emit('upload-progress', uploadProgress.value)
-
     if (uploadProgress.value >= 100) {
       clearInterval(interval)
       uploading.value = false
     }
-  }, 200)
+  }, 100)
 }
 
-// Limpiar URL de preview al desmontar
+// Limpiar recursos
 onBeforeUnmount(() => {
   if (previewUrl.value) {
     URL.revokeObjectURL(previewUrl.value)
   }
 })
 
-// Si el padre cambia el modelValue, limpiar preview
+// Limpiar preview cuando se borra imagen
 watch(() => props.modelValue, (newVal) => {
   if (!newVal) {
     previewUrl.value = ''
@@ -174,4 +177,9 @@ watch(() => props.modelValue, (newVal) => {
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.image-uploader {
+  display: flex;
+  flex-direction: column;
+}
+</style>

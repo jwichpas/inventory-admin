@@ -60,7 +60,7 @@
             <tr v-for="category in paginatedCategories" :key="category.id" class="hover:bg-gray-50">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex-shrink-0 h-10 w-10">
-                  <img :src="category.image || '/images/default-category.png'" :alt="category.name"
+                  <img v-lazy="getImageUrl(category.image) || '/images/default-category.png'" :alt="category.name"
                     class="h-10 w-10 rounded-full object-cover">
                 </div>
               </td>
@@ -153,8 +153,37 @@ import {
 } from '@heroicons/vue/24/outline'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import api from '@/services/api'
+/* import Swal from 'sweetalert2' */
+import { useAlert } from '@/composables/useAlert';
+import { useImageUrl } from '@/composables/useImageUrl';
 
-const categories = ref([]);
+
+interface Empresa {
+  id: number;
+  nombre: string;
+  ruc: string;
+  direccion: string;
+  created_at: string;
+  updated_at: string;
+}
+interface Category {
+  id: number;
+  id_empresa: number;
+  codigo: string;
+  name: string;
+  image: string;
+  created_at: string;
+  updated_at: string;
+  empresa: Empresa;
+}
+
+const getImageUrl = (imagePath: string) => {
+  return imagePath ? useImageUrl(imagePath) : '/images/default-category.png';
+};
+
+const { showNotificationes } = useAlert();
+const categories = ref<Category[]>([]);
+/* const categories = ref([]); */
 const loading = ref(true);
 const error = ref(null);
 
@@ -286,6 +315,7 @@ const sortBy = (field) => {
 // Confirmar eliminación
 const confirmDelete = (category) => {
   categoryToDelete.value = category
+  console.log('Categoría a eliminar:', categoryToDelete.value)
   showDeleteModal.value = true
 }
 
@@ -293,6 +323,8 @@ const confirmDelete = (category) => {
 const deleteCategory = async () => {
   try {
     // Aquí iría la llamada a la API para eliminar
+    await api.delete(`/categories/${categoryToDelete.value.id}`);
+
     const index = categories.value.findIndex(c => c.id === categoryToDelete.value.id)
     if (index !== -1) {
       categories.value.splice(index, 1)
@@ -323,6 +355,13 @@ onMounted(async () => {
 const showNotification = (message, type = 'success') => {
   // Implementación depende de tu sistema de notificaciones
   console.log(`${type}: ${message}`)
+  showNotificationes('Operación exitosa', 'success', 'Éxito', 13000);
+  /* Swal.fire({
+    icon: type,
+    title: message,
+    timer: 1000,
+    showConfirmButton: false
+  }) */
 }
 </script>
 

@@ -37,14 +37,28 @@
               <label for="code" class="block text-sm font-medium text-gray-700">
                 Código
               </label>
-              <input type="text" id="code" v-model="form.codigo"
+              <input type="text" id="code" v-model="form.codigo" @blur="validateCode"
+                :class="{ 'border-red-500': codeError }"
                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+              <div v-if="isCheckingCode" class="text-blue-500 text-sm">
+                Validando código...
+              </div>
+              <div v-if="codeError" class="text-red-500 text-sm">
+                {{ codeError }}
+              </div>
             </div>
 
             <!-- Imagen -->
             <div class="sm:col-span-6 ">
               <label class="block text-sm font-medium text-gray-700 mb-2">Imagen</label>
+
               <ImageUploader v-model="form.image" />
+              <!-- <div class="mt-4">
+                <label class="block text-sm text-gray-500 mb-1">Vista previa:</label>
+                <img v-lazy="getImageUrl(form.image)" alt="Vista previa de la categoría"
+                  class="w-32 h-32 object-cover rounded border border-gray-200" />
+              </div> -->
+
             </div>
           </div>
         </div>
@@ -75,44 +89,61 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
 import ImageUploader from '@/components/ImageUploader.vue'
+/* import { useImageUrl } from '@/composables/useImageUrl'; */
+import { useCategories } from '@/composables/useCategories';
 import Api from '@/services/api'
+import { debounce } from 'lodash-es';
+
+const { validateCodeHybrid, isCheckingCode, currentEnterprise } = useCategories();
+
+
+
+
+currentEnterprise.value = (localStorage.getItem('empresa_id') || '1');
 
 const route = useRoute()
 const router = useRouter()
 
 const loading = ref(false)
-const errors = ref({})
-const form = ref({
+const errors = ref<FormErrors>({})
+
+interface CategoryForm {
+  id: number | null;
+  id_empresa: number | null;
+  name: string;
+  codigo: string;
+  image: File | string | null;
+}
+interface FormErrors {
+  name?: string;
+  codigo?: string;
+}
+const form = ref<CategoryForm>({
+  id: null,
   id_empresa: null,
   name: '',
   codigo: '',
   image: null
 })
 
+
+
 const isEditing = computed(() => route.name === 'categories.edit')
-
-
+const codeError = ref('');
+const isSubmitting = ref(false);
 
 // Cargar datos si estamos editando
 onMounted(async () => {
   if (isEditing.value) {
     try {
       // Simular carga de la categoría a editar
-      // const response = await fetchCategory(route.params.id)
-      // form.value = response.data
-
-      // Datos de ejemplo
-      form.value = {
-        id_empresa: 1,
-        name: 'Electrónicos',
-        codigo: 'CAT-001',
-        image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-      }
+      const response = await fetch(`http://localhost:8000/api/categories/${route.params.id}`);
+      form.value = await response.json();
     } catch (error) {
       console.error('Error cargando categoría:', error)
       showNotification('Error al cargar la categoría', 'error')
@@ -120,7 +151,7 @@ onMounted(async () => {
     }
   } else {
     // Establecer empresa_id por defecto (podría venir de un store o localStorage)
-    form.value.id_empresa = localStorage.getItem('empresa_id') || 1
+    form.value.id_empresa = +(localStorage.getItem('empresa_id') || '1');
   }
 })
 
@@ -140,13 +171,20 @@ const validateForm = () => {
 // Enviar formulario
 const submitForm = async () => {
   if (!validateForm()) return;
+  const validation = await validateCodeHybrid(form.value.codigo);
+  if (!validation.isValid) {
+    codeError.value = validation.message;
+    return;
+  }
 
+  isSubmitting.value = true;
   loading.value = true;
   errors.value = {};
 
   try {
     const formData = new FormData();
-    formData.append('id_empresa', localStorage.getItem('empresa_id'));
+    /* formData.append('id_empresa', localStorage.getItem('empresa_id')); */
+    formData.append('id_empresa', String(form.value.id_empresa));
     formData.append('name', form.value.name);
     formData.append('codigo', form.value.codigo);
 
@@ -195,8 +233,25 @@ const submitForm = async () => {
     }
   } finally {
     loading.value = false;
+    isSubmitting.value = false;
   }
 };
+
+
+
+const validateCode = debounce(async () => {
+  if (!form.value.codigo) {
+    codeError.value = 'El código es requerido';
+    return;
+  }
+
+  const validation = await validateCodeHybrid(form.value.codigo);
+  if (!validation.isValid) {
+    codeError.value = validation.message;
+  } else {
+    codeError.value = '';
+  }
+}, 500);
 
 // Función auxiliar para convertir base64 a Blob
 function dataURLtoBlob(dataurl) {
