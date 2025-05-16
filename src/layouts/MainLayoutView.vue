@@ -1,5 +1,5 @@
 <template>
-  <div class="h-screen flex overflow-hidden bg-gray-100">
+  <div class="h-screen flex overflow-hidden bg-gray-100 dark:bg-slate-500">
     <!-- Sidebar -->
     <Sidebar ref="sidebar" />
 

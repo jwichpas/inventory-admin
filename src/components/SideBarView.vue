@@ -19,9 +19,9 @@
       'w-20': minimized,
       'w-64': !minimized
     }"
-      class="fixed inset-y-0 left-0 z-40 bg-white shadow-lg transform transition-all duration-200 ease-in-out flex flex-col">
+      class="fixed inset-y-0 left-0 z-40 bg-white shadow-lg transform transition-all duration-200 ease-in-out flex flex-col dark:bg-slate-900 dark:text-white">
       <!-- Logo/Sidebar Header -->
-      <div class="flex items-center justify-between h-16 px-4 bg-rose-600 shrink-0">
+      <div class="flex items-center justify-between h-16 px-4 bg-rose-600 shrink-0 dark:bg-slate-900">
         <transition name="fade" mode="out-in">
           <span v-if="!minimized" class="text-white font-bold text-xl whitespace-nowrap">
             InventoryApp
@@ -48,9 +48,10 @@
       <nav class="flex-1 overflow-y-auto py-4">
         <div v-for="item in navigation" :key="item.name">
           <button v-if="item.children" @click="toggleSubmenu(item.name)"
-            class="group flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 hover:text-rose-600">
+            class="group flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 hover:text-rose-600 dark:text-gray-200 dark:hover:bg-slate-800">
             <div class="flex items-center">
-              <component :is="item.icon" class="flex-shrink-0 h-5 w-5 mr-3 text-gray-400 group-hover:text-rose-500" />
+              <component :is="item.icon"
+                class="flex-shrink-0 h-5 w-5 mr-3 text-gray-400 group-hover:text-rose-500 dark:text-gray-200 dark:group-hover:text-rose-500" />
               {{ item.name }}
             </div>
             <ChevronDownIcon class="h-4 w-4 transform transition-transform"
@@ -60,7 +61,7 @@
           <router-link v-else :to="item.to" active-class="bg-gray-100 text-rose-600"
             class="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-rose-50 hover:text-rose-600">
             <component :is="item.icon"
-              class="flex-shrink-0 h-5 w-5 mr-3 text-gray-400 group-hover:bg-rose-50 group-hover:text-rose-500" />
+              class="flex-shrink-0 h-5 w-5 mr-3 text-gray-400 group-hover:bg-rose-50 group-hover:text-rose-500 dark:text-gray-600 dark:group-hover:bg-rose-50 dark:group-hover:text-rose-500" />
             {{ item.name }}
           </router-link>
 
@@ -71,7 +72,7 @@
             <div v-show="item.children && openSubmenus[item.name]" class="ml-8 mt-1 space-y-1">
               <router-link v-for="child in item.children" :key="child.name" :to="child.to"
                 active-class="bg-gray-100 text-rose-600"
-                class="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-rose-50 hover:text-rose-600">
+                class="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-rose-50 hover:text-rose-600 dark:text-gray-200">
                 {{ child.name }}
               </router-link>
             </div>
@@ -108,7 +109,24 @@
         </div>
 
       </nav>
-
+      <!-- Dark Mode Toggle -->
+      <div class="mt-auto p-4">
+        <button @click="toggleDarkMode"
+          class="flex items-center justify-between w-full p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          <div class="flex items-center">
+            <MoonIcon v-if="isDark" class="h-5 w-5 mr-2" />
+            <SunIcon v-else class="h-5 w-5 mr-2" />
+            <span>{{ isDark ? 'Modo oscuro' : 'Modo claro' }}</span>
+          </div>
+          <div class="relative inline-block w-10 mr-2 align-middle select-none">
+            <input type="checkbox" v-model="isDark"
+              class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out"
+              :class="{ 'translate-x-4': isDark }" />
+            <label
+              class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"></label>
+          </div>
+        </button>
+      </div>
       <!-- User Profile -->
       <div class="p-4 border-t border-gray-200 shrink-0">
         <div class="flex items-center" :class="{ 'justify-center': minimized }">
@@ -148,6 +166,8 @@ import {
   UserGroupIcon,
   CubeIcon
 } from '@heroicons/vue/24/outline'
+import { useDarkMode } from '@/composables/useDarkMode'
+const { isDark, toggleDarkMode } = useDarkMode()
 
 // Estado del sidebar
 const minimized = ref(localStorage.getItem('sidebarMinimized') === 'true')
