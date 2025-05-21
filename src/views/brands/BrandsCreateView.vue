@@ -97,7 +97,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ArrowLeftIcon } from '@heroicons/vue/24/outline'
 import ImageUploader from '@/components/ImageUploader.vue'
 import { useBrands } from '@/composables/useBrands';
-import Api from '@/services/api'
+import Api from '@/api/axios'
 import { debounce } from 'lodash-es';
 
 const { validateCodeHybrid, isCheckingCode, currentEnterprise } = useBrands();

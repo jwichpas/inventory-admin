@@ -110,7 +110,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-import api from '@/services/api'
+import api from '@/api/axios'
 
 const router = useRouter()
 const loading = ref(false)

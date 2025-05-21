@@ -3,14 +3,18 @@
     <!-- Mobile menu button -->
     <div class="lg:hidden fixed top-4 left-4 z-50">
       <button @click="mobileMenuOpen = !mobileMenuOpen"
-        class="p-2 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none">
-        <Bars3Icon class="h-6 w-6" />
+        class="p-2 rounded-md text-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none transition-colors">
+        <Bars3Icon class="h-6 w-6 text-neutral-600 dark:text-neutral-300" />
       </button>
     </div>
 
     <!-- Sidebar Overlay -->
-    <div v-show="mobileMenuOpen" @click="mobileMenuOpen = false"
-      class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity duration-200"></div>
+    <transition enter-active-class="transition-opacity ease-linear duration-200"
+      leave-active-class="transition-opacity ease-linear duration-200" enter-from-class="opacity-0"
+      leave-to-class="opacity-0">
+      <div v-show="mobileMenuOpen" @click="mobileMenuOpen = false"
+        class="lg:hidden fixed inset-0 bg-black/50 z-30 backdrop-blur-sm"></div>
+    </transition>
 
     <!-- Sidebar -->
     <aside ref="sidebar" :class="{
@@ -19,19 +23,24 @@
       'w-20': minimized,
       'w-64': !minimized
     }"
-      class="fixed inset-y-0 left-0 z-40 bg-white shadow-lg transform transition-all duration-200 ease-in-out flex flex-col dark:bg-slate-900 dark:text-white">
+      class="fixed inset-y-0 left-0 z-40 bg-white dark:bg-neutral-950 shadow-xl transform transition-all duration-300 ease-in-out flex flex-col border-r border-neutral-200 dark:border-neutral-700">
+
       <!-- Logo/Sidebar Header -->
-      <div class="flex items-center justify-between h-16 px-4 bg-rose-600 shrink-0 dark:bg-slate-900">
+      <div class="flex items-center justify-between h-16 px-4 bg-indigo-600 dark:bg-neutral-900 shrink-0">
         <transition name="fade" mode="out-in">
-          <span v-if="!minimized" class="text-white font-bold text-xl whitespace-nowrap">
-            InventoryApp
-          </span>
-          <span v-else class="text-white font-bold text-xl">IA</span>
+          <router-link to="/" v-if="!minimized" class="flex items-center space-x-2">
+            <span class="text-white font-bold text-xl whitespace-nowrap">
+              InventoryApp
+            </span>
+          </router-link>
+          <router-link to="/" v-else class="flex items-center justify-center w-full">
+            <span class="text-white font-bold text-xl">IA</span>
+          </router-link>
         </transition>
 
         <!-- Minimize Button (Desktop) -->
         <button @click="toggleMinimize"
-          class="hidden lg:block p-1 rounded-md text-white hover:bg-rose-500 focus:outline-none"
+          class="hidden lg:block p-1 rounded-md text-white hover:bg-indigo-500 focus:outline-none transition-colors"
           :title="minimized ? 'Expandir' : 'Minimizar'">
           <ChevronDoubleLeftIcon v-if="!minimized" class="h-5 w-5" />
           <ChevronDoubleRightIcon v-else class="h-5 w-5" />
@@ -39,40 +48,60 @@
 
         <!-- Close Button (Mobile) -->
         <button @click="mobileMenuOpen = false"
-          class="lg:hidden p-1 rounded-md text-white hover:bg-rose-500 focus:outline-none">
+          class="lg:hidden p-1 rounded-md text-white hover:bg-indigo-500 focus:outline-none transition-colors">
           <XMarkIcon class="h-5 w-5" />
         </button>
       </div>
 
       <!-- Navigation -->
-      <nav class="flex-1 overflow-y-auto py-4">
+      <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-2">
         <div v-for="item in navigation" :key="item.name">
           <button v-if="item.children" @click="toggleSubmenu(item.name)"
-            class="group flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 hover:text-rose-600 dark:text-gray-200 dark:hover:bg-slate-800">
+            class="group flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
+            :class="{
+              'text-neutral-900 dark:text-white bg-neutral-100 dark:bg-neutral-700': openSubmenus[item.name],
+              'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-700': !openSubmenus[item.name]
+            }">
             <div class="flex items-center">
-              <component :is="item.icon"
-                class="flex-shrink-0 h-5 w-5 mr-3 text-gray-400 group-hover:text-rose-500 dark:text-gray-200 dark:group-hover:text-rose-500" />
-              {{ item.name }}
+              <component :is="item.icon" class="flex-shrink-0 h-5 w-5 mr-3 transition-colors" :class="{
+                'text-indigo-600 dark:text-indigo-400': openSubmenus[item.name],
+                'text-neutral-500 group-hover:text-indigo-600 dark:text-neutral-400 dark:group-hover:text-indigo-400': !openSubmenus[item.name]
+              }" />
+              <transition name="slide-fade">
+                <span v-if="!minimized">{{ item.name }}</span>
+              </transition>
             </div>
             <ChevronDownIcon class="h-4 w-4 transform transition-transform"
-              :class="{ 'rotate-180': openSubmenus[item.name] }" />
+              :class="{ 'rotate-180': openSubmenus[item.name], 'text-neutral-400': true }" />
           </button>
 
-          <router-link v-else :to="item.to" active-class="bg-gray-100 text-rose-600"
-            class="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-rose-50 hover:text-rose-600">
-            <component :is="item.icon"
-              class="flex-shrink-0 h-5 w-5 mr-3 text-gray-400 group-hover:bg-rose-50 group-hover:text-rose-500 dark:text-gray-600 dark:group-hover:bg-rose-50 dark:group-hover:text-rose-500" />
-            {{ item.name }}
+          <router-link v-else :to="item.to" v-slot="{ isActive }"
+            class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors" :class="{
+              'bg-indigo-50 text-indigo-600 dark:bg-neutral-700 dark:text-indigo-400': isActive,
+              'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-700': !isActive,
+              'justify-center': minimized
+            }">
+            <component :is="item.icon" class="flex-shrink-0 h-5 w-5" :class="{
+              'mr-3': !minimized,
+              'text-indigo-600 dark:text-indigo-400': isActive,
+              'text-neutral-500 group-hover:text-indigo-600 dark:text-neutral-400 dark:group-hover:text-indigo-400': !isActive
+            }" />
+            <transition name="slide-fade">
+              <span v-if="!minimized">{{ item.name }}</span>
+            </transition>
+            <span v-if="minimized" class="sr-only">{{ item.name }}</span>
           </router-link>
 
-          <transition enter-active-class="transition ease-out duration-100"
-            enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
-            leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
-            leave-to-class="transform opacity-0 scale-95">
+          <transition enter-active-class="transition-all duration-200 ease-out"
+            leave-active-class="transition-all duration-150 ease-in" enter-from-class="max-h-0 opacity-0"
+            enter-to-class="max-h-96 opacity-100" leave-from-class="max-h-96 opacity-100"
+            leave-to-class="max-h-0 opacity-0">
             <div v-show="item.children && openSubmenus[item.name]" class="ml-8 mt-1 space-y-1">
-              <router-link v-for="child in item.children" :key="child.name" :to="child.to"
-                active-class="bg-gray-100 text-rose-600"
-                class="group flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-rose-50 hover:text-rose-600 dark:text-gray-200">
+              <router-link v-for="child in item.children" :key="child.name" :to="child.to" v-slot="{ isActive }"
+                class="block px-3 py-2 text-sm rounded-lg transition-colors" :class="{
+                  'bg-indigo-50 text-indigo-600 dark:bg-neutral-700 dark:text-indigo-400': isActive,
+                  'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-700': !isActive
+                }">
                 {{ child.name }}
               </router-link>
             </div>
@@ -80,63 +109,76 @@
         </div>
 
         <!-- Admin Section -->
-        <div class="mt-8 px-3">
+        <div class="mt-8 px-1">
           <transition name="fade">
-            <h3 v-if="!minimized" class="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <h3 v-if="!minimized"
+              class="px-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
               Administración
             </h3>
           </transition>
           <div class="mt-1 space-y-1">
-            <router-link v-for="item in adminNavigation" :key="item.name" :to="item.to"
-              active-class="bg-gray-100 text-rose-600"
-              class="group flex items-center px-3 py-2 text-sm font-medium rounded-md" :class="{
-                'text-gray-700 hover:bg-gray-50 hover:text-rose-600': !minimized,
+            <router-link v-for="item in adminNavigation" :key="item.name" :to="item.to" v-slot="{ isActive }"
+              class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors" :class="{
+                'bg-indigo-50 text-indigo-600 dark:bg-neutral-700 dark:text-indigo-400': isActive,
+                'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-700': !isActive,
                 'justify-center': minimized
               }">
               <component :is="item.icon" class="flex-shrink-0 h-5 w-5" :class="{
                 'mr-3': !minimized,
-                'text-gray-400 group-hover:text-rose-500': true
+                'text-indigo-600 dark:text-indigo-400': isActive,
+                'text-neutral-500 group-hover:text-indigo-600 dark:text-neutral-400 dark:group-hover:text-indigo-400': !isActive
               }" />
               <transition name="slide-fade">
-                <span v-if="!minimized" class="whitespace-nowrap">
-                  {{ item.name }}
-                </span>
+                <span v-if="!minimized">{{ item.name }}</span>
               </transition>
               <span v-if="minimized" class="sr-only">{{ item.name }}</span>
             </router-link>
-
           </div>
         </div>
-
       </nav>
+
       <!-- Dark Mode Toggle -->
-      <div class="mt-auto p-4">
+      <div class="mt-auto p-4 border-t border-neutral-200 dark:border-neutral-700">
         <button @click="toggleDarkMode"
-          class="flex items-center justify-between w-full p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          class="flex items-center justify-between w-full p-2 rounded-lg transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-700">
           <div class="flex items-center">
-            <MoonIcon v-if="isDark" class="h-5 w-5 mr-2" />
-            <SunIcon v-else class="h-5 w-5 mr-2" />
-            <span>{{ isDark ? 'Modo oscuro' : 'Modo claro' }}</span>
+            <MoonIcon v-if="isDark" class="h-5 w-5 text-indigo-400 mr-2" />
+            <SunIcon v-else class="h-5 w-5 text-indigo-600 mr-2" />
+            <transition name="slide-fade">
+              <span v-if="!minimized" class="text-sm text-neutral-700 dark:text-neutral-300">
+                {{ isDark ? 'Modo oscuro' : 'Modo claro' }}
+              </span>
+            </transition>
           </div>
-          <div class="relative inline-block w-10 mr-2 align-middle select-none">
-            <input type="checkbox" v-model="isDark"
-              class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out"
-              :class="{ 'translate-x-4': isDark }" />
-            <label
-              class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 dark:bg-gray-600 cursor-pointer"></label>
+          <div v-if="!minimized"
+            class="relative inline-flex items-center h-5 rounded-full w-10 transition-colors duration-200 ease-in-out"
+            :class="{
+              'bg-indigo-600': !isDark,
+              'bg-neutral-600': isDark
+            }">
+            <span :class="{
+              'translate-x-5': isDark,
+              'translate-x-0': !isDark
+            }"
+              class="inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-200 ease-in-out" />
           </div>
         </button>
       </div>
+
       <!-- User Profile -->
-      <div class="p-4 border-t border-gray-200 shrink-0">
+      <div class="p-4 border-t border-neutral-200 dark:border-neutral-700 shrink-0">
         <div class="flex items-center" :class="{ 'justify-center': minimized }">
-          <img class="h-8 w-8 rounded-full"
-            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-            alt="User profile">
+          <div class="relative">
+            <img class="h-8 w-8 rounded-full object-cover"
+              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+              alt="User profile">
+            <span
+              class="absolute bottom-0 right-0 block h-2 w-2 rounded-full bg-green-400 ring-2 ring-white dark:ring-neutral-800"></span>
+          </div>
           <transition name="slide-fade">
-            <div v-if="!minimized" class="ml-3">
-              <p class="text-sm font-medium text-gray-700">John Doe</p>
-              <button class="text-xs font-medium text-gray-500 hover:text-gray-700">Ver perfil</button>
+            <div v-if="!minimized" class="ml-3 overflow-hidden">
+              <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200 truncate">John Doe</p>
+              <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate">Admin</p>
             </div>
           </transition>
         </div>
@@ -146,7 +188,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import {
   // Iconos básicos
   Bars3Icon,
@@ -154,6 +196,8 @@ import {
   ChevronDownIcon,
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
+  MoonIcon,
+  SunIcon,
   // Iconos de navegación
   HomeIcon,
   UsersIcon,
@@ -164,9 +208,11 @@ import {
   CogIcon,
   ShieldCheckIcon,
   UserGroupIcon,
-  CubeIcon
+  CubeIcon,
+  ShoppingCartIcon
 } from '@heroicons/vue/24/outline'
 import { useDarkMode } from '@/composables/useDarkMode'
+
 const { isDark, toggleDarkMode } = useDarkMode()
 
 // Estado del sidebar
@@ -174,13 +220,6 @@ const minimized = ref(localStorage.getItem('sidebarMinimized') === 'true')
 const mobileMenuOpen = ref(false)
 const isMobile = ref(window.innerWidth < 1024)
 const sidebar = ref(null)
-
-const isOpen = ref(localStorage.getItem('sidebarOpen') !== 'false')
-
-watch(isOpen, (newVal) => {
-  localStorage.setItem('sidebarOpen', newVal)
-})
-
 const openSubmenus = ref({})
 
 const toggleSubmenu = (name) => {
@@ -189,24 +228,34 @@ const toggleSubmenu = (name) => {
     [name]: !openSubmenus.value[name]
   }
 }
-// Navegación
+
+// Navegación mejorada con iconos más apropiados
 const navigation = [
   { name: 'Dashboard', to: '/dashboard', icon: HomeIcon },
   {
-    name: 'Catalogo', icon: FolderIcon,
+    name: 'Catálogo', icon: ShoppingCartIcon,
     children: [
       { name: 'Productos', to: '/products' },
-      { name: 'Categoria', to: '/categories' },
-      { name: 'Subcategoria', to: '/products/subcategory' },
-      { name: 'Unidad de medida', to: '/products/measure-unit' },
-      { name: 'Tipo de producto', to: '/products/product-type' },
-      { name: 'Marca', to: '/brands' }
+      { name: 'Categorías', to: '/categories' },
+      { name: 'Subcategorías', to: '/products/subcategory' },
+      { name: 'Unidades', to: '/products/measure-unit' },
+      { name: 'Tipos', to: '/products/product-type' },
+      { name: 'Marcas', to: '/brands' }
     ]
   },
-  { name: 'Movimientos', to: '/movements', icon: DocumentDuplicateIcon },
+  {
+    name: 'Sire SUNAT', icon: DocumentDuplicateIcon,
+    children: [
+      { name: 'Compras', to: '/sire/compras' },
+      { name: 'Ventas', to: '/sire/sales' },
+      { name: 'Resumen', to: '/sire/resumens' }
+    ]
+  },
+  { name: 'Ventas', to: '/sales', icon: UsersIcon },
+  { name: 'Compras', to: '/purchases', icon: ShoppingCartIcon },
+  { name: 'Movimientos', to: '/movements', icon: CubeIcon },
   { name: 'Reportes', to: '/reports', icon: ChartBarIcon },
-  { name: 'Inventario', to: '/inventory', icon: CubeIcon },
-
+  { name: 'Inventario', to: '/inventory', icon: FolderIcon },
 ]
 
 const adminNavigation = [
@@ -218,7 +267,7 @@ const adminNavigation = [
 // Minimizar/expandir sidebar
 const toggleMinimize = () => {
   minimized.value = !minimized.value
-  localStorage.setItem('sidebarMinimized', minimized.value)
+  localStorage.setItem('sidebarMinimized', minimized.value.toString())
 }
 
 // Manejar responsive
@@ -240,10 +289,10 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Transiciones */
+/* Transiciones mejoradas */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.15s ease;
+  transition: opacity 0.2s ease;
 }
 
 .fade-enter-from,
@@ -252,16 +301,16 @@ onBeforeUnmount(() => {
 }
 
 .slide-fade-enter-active {
-  transition: all 0.15s ease-out;
+  transition: all 0.2s ease-out;
 }
 
 .slide-fade-leave-active {
-  transition: all 0.1s ease-in;
+  transition: all 0.15s ease-in;
 }
 
 .slide-fade-enter-from,
 .slide-fade-leave-to {
-  transform: translateX(10px);
+  transform: translateX(8px);
   opacity: 0;
 }
 
@@ -271,16 +320,36 @@ nav::-webkit-scrollbar {
 }
 
 nav::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
   border-radius: 3px;
 }
 
 nav::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #d1d5db;
   border-radius: 3px;
 }
 
 nav::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: #9ca3af;
+}
+
+.dark nav::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.dark nav::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Animación para el toggle de dark mode */
+.toggle-enter-active,
+.toggle-leave-active {
+  transition: all 0.2s ease;
+}
+
+.toggle-enter-from,
+.toggle-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
 }
 </style>

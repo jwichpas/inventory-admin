@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import type { AxiosResponse } from 'axios'
-import api from '@/services/api'
+import api from '@/api/axios'
 import type { Brand } from '@/types/brand'
 
 interface CodeValidation {

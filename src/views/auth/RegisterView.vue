@@ -5,6 +5,10 @@
       <h2 class="text-2xl font-bold text-center mb-6">Registro de Empresa</h2>
       <form @submit.prevent="register">
         <div class="mb-4">
+          <label class="block mb-1 font-medium">RUC de Empresa</label>
+          <input v-model="ruc_empresa" type="text" required class="w-full px-4 py-2 border rounded-xl" />
+        </div>
+        <div class="mb-4">
           <label class="block mb-1 font-medium">Nombre de Empresa</label>
           <input v-model="nombre_empresa" type="text" required class="w-full px-4 py-2 border rounded-xl" />
         </div>
@@ -32,8 +36,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import api from '@/services/api'
+import api from '@/api/axios'
 
+const ruc_empresa = ref('')
 const nombre_empresa = ref('')
 const nombre_usuario = ref('')
 const email = ref('')
@@ -42,7 +47,8 @@ const router = useRouter()
 
 const register = async () => {
   try {
-    await api.post('/registro-empresa', {
+    await api.post('/registrar-empresa', {
+      ruc_empresa: ruc_empresa.value,
       nombre_empresa: nombre_empresa.value,
       nombre_usuario: nombre_usuario.value,
       email: email.value,

@@ -12,6 +12,7 @@ import CategoryIndexView from '@/views/categories/IndexView.vue'
 import CategoryCreateEditView from '@/views/categories/CreateEditView.vue'
 import BrandsView from '@/views/brands/BrandsView.vue'
 import BrandsCreateView from '@/views/brands/BrandsCreateView.vue'
+import SireComprasView from '@/views/sire/ListComprasView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -86,6 +87,24 @@ const router = createRouter({
           name: 'brands.edit',
           component: BrandsCreateView,
           meta: { title: 'Editar Marca', requiresAuth: true },
+        },
+        {
+          path: '/sire/compras',
+          name: 'sire.compras',
+          component: SireComprasView,
+          meta: { title: 'Compras SIRE', requiresAuth: true },
+        },
+        {
+          path: '/sire/compras/:id',
+          name: 'sire.compras.show',
+          component: SireComprasView,
+          meta: { title: 'Compras SIRE', requiresAuth: true },
+        },
+        {
+          path: '/sire/compras/edit/:id',
+          name: 'sire.compras.edit',
+          component: SireComprasView,
+          meta: { title: 'Editar Compra', requiresAuth: true },
         },
       ],
     },

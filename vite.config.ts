@@ -40,4 +40,45 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  server: {
+    /* host: 'misfacturas.test', */
+    port: 5173,
+    open: true,
+
+    proxy: {
+      '/sunat-auth': {
+        target: 'https://api-seguridad.sunat.gob.pe', // URL base de la API de SUNAT
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/sunat-auth/, ''),
+      },
+      '/sunat-api': {
+        target: 'https://api-sire.sunat.gob.pe', // URL base de la API de SUNAT
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/sunat-api/, ''),
+      },
+      '/storage': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+        /* rewrite: (path) => path.replace(/^\/storage/, ''), */
+      },
+    },
+  },
+  devServer: {
+    proxy: {
+      '/sunat-api': {
+        /* target: 'http://localhost:3000', */
+        target: 'https://eladmin-production.up.railway.app',
+        changeOrigin: true,
+      },
+      '/api': {
+        /* target: 'http://127.0.0.1:8000', */
+        target: 'https://mi-api-laravel-production.up.railway.app/',
+        changeOrigin: true,
+      },
+      '/storage': {
+        target: 'https://mi-api-laravel-production.up.railway.app/',
+        changeOrigin: true,
+      },
+    },
+  },
 })

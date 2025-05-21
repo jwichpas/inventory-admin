@@ -152,7 +152,7 @@ import {
   ArrowsUpDownIcon
 } from '@heroicons/vue/24/outline'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
-import api from '@/services/api'
+import api from '@/api/axios'
 /* import Swal from 'sweetalert2' */
 import { useAlert } from '@/composables/useAlert';
 import { useImageUrl } from '@/composables/useImageUrl';
