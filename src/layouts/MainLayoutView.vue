@@ -1,10 +1,15 @@
 <template>
-  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex overflow-x-hidden">
+    <!-- Sidebar y overlay para mobile -->
+    <div v-if="mobileSidebarOpen" class="fixed inset-0 z-10 bg-black/50 lg:hidden" @click="mobileSidebarOpen = false">
+    </div>
+
     <!-- Sidebar -->
-    <Sidebar ref="sidebar" class="fixed inset-y-0 z-20" />
+    <Sidebar ref="sidebar" class="fixed inset-y-0 z-20"
+      :class="{ 'translate-x-0': mobileSidebarOpen, '-translate-x-full lg:translate-x-0': !mobileSidebarOpen }" />
 
     <!-- Contenido principal -->
-    <div class="flex-1 flex flex-col transition-all duration-300 ease-in-out" :class="{
+    <div class="flex-1 flex flex-col transition-all duration-300 ease-in-out min-w-0" :class="{
       'lg:pl-64': !$refs.sidebar?.minimized,
       'lg:pl-20': $refs.sidebar?.minimized
     }">
@@ -16,18 +21,18 @@
             <!-- Título y breadcrumbs -->
             <div class="flex items-center space-x-4">
               <!-- Botón para mobile -->
-              <button @click="$refs.sidebar.toggleMinimize()"
+              <button @click="mobileSidebarOpen = !mobileSidebarOpen"
                 class="lg:hidden p-2 rounded-md text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none transition-colors">
                 <Bars3Icon class="h-5 w-5" />
               </button>
 
-              <h1 class="text-xl font-bold text-neutral-900 dark:text-white">
+              <h1 class="text-xl font-bold text-neutral-900 dark:text-white truncate">
                 {{ $route.meta.title || 'Dashboard' }}
               </h1>
 
               <nav class="hidden md:flex items-center space-x-1 text-sm">
                 <router-link v-for="(crumb, index) in breadcrumbs" :key="index" :to="crumb.path"
-                  class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors">
+                  class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors truncate">
                   {{ crumb.meta.title }}
                   <span v-if="index < breadcrumbs.length - 1" class="mx-1">/</span>
                 </router-link>
@@ -36,6 +41,13 @@
 
             <!-- User menu y notificaciones -->
             <div class="flex items-center space-x-4">
+              <!-- Botón de toggle para modo oscuro -->
+              <button @click="toggleDarkMode"
+                class="p-2 rounded-full text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700">
+                <MoonIcon v-if="darkMode" class="h-5 w-5" />
+                <SunIcon v-else class="h-5 w-5" />
+              </button>
+
               <button
                 class="p-2 rounded-full text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 relative">
                 <BellIcon class="h-5 w-5" />
@@ -48,7 +60,8 @@
                     class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-medium">
                     {{ userInitials }}
                   </div>
-                  <span class="hidden md:inline text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  <span
+                    class="hidden md:inline text-sm font-medium text-neutral-700 dark:text-neutral-300 truncate max-w-xs">
                     {{ userName }}
                   </span>
                   <ChevronDownIcon class="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
@@ -59,7 +72,7 @@
                   enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
                   leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
                   leave-to-class="transform opacity-0 scale-95">
-                  <div v-if="showUserMenu"
+                  <div v-if="showUserMenu" v-click-outside="closeUserMenu"
                     class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-neutral-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-30">
                     <div class="py-1">
                       <router-link to="/profile"
@@ -89,14 +102,16 @@
           <!-- Aquí va el contenido dinámico -->
           <div class="max-w-full mx-auto">
             <div
-              class="bg-white dark:bg-neutral-950 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
+              class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-4 sm:p-6">
               <router-view v-slot="{ Component }">
-                <transition name="fade" mode="out-in" enter-active-class="transition-opacity duration-300 ease-out"
-                  enter-from-class="opacity-0" enter-to-class="opacity-100"
-                  leave-active-class="transition-opacity duration-200 ease-in" leave-from-class="opacity-100"
-                  leave-to-class="opacity-0">
-                  <component :is="Component" />
-                </transition>
+                <div class="space-y-6">
+                  <transition name="fade" mode="out-in" enter-active-class="transition-opacity duration-300 ease-out"
+                    enter-from-class="opacity-0" enter-to-class="opacity-100"
+                    leave-active-class="transition-opacity duration-200 ease-in" leave-from-class="opacity-100"
+                    leave-to-class="opacity-0">
+                    <component :is="Component" />
+                  </transition>
+                </div>
               </router-view>
             </div>
           </div>
@@ -115,9 +130,20 @@ import {
   ChevronDownIcon
 } from '@heroicons/vue/24/outline'
 import Sidebar from '@/components/SideBarView.vue'
-const sidebar = ref(null)
-const showUserMenu = ref(false)
+
+interface Breadcrumb {
+  path: string
+  meta: {
+    title: string
+  }
+}
+
+const sidebar = ref<InstanceType<typeof Sidebar> | null>(null)
+const showUserMenu = ref<boolean>(false)
 const route = useRoute()
+const mobileSidebarOpen = ref<boolean>(false)
+
+
 
 // Datos de ejemplo del usuario
 const userName = 'John Doe'
@@ -125,10 +151,11 @@ const userInitials = computed(() => {
   return userName.split(' ').map(n => n[0]).join('')
 })
 
-const breadcrumbs = computed(() => {
-  // Lógica para generar breadcrumbs basada en la ruta actual
+const breadcrumbs = computed<Breadcrumb[]>(() => {
+  // Implementación real de breadcrumbs
   return []
 })
+
 
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value

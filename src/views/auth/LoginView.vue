@@ -8,21 +8,22 @@
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-        <form class="space-y-6" @submit.prevent="login">
+        <form class="space-y-6" @submit.prevent="handleLogin">
           <!-- Empresa Selector -->
-          <div>
-            <label for="empresa" class="block text-sm font-medium text-gray-700">
+          <!--           <div v-if="companies.length > 0">
+            <label for="empresa_id" class="block text-sm font-medium text-gray-700">
               Empresa
             </label>
-            <select id="empresa" v-model="form.empresa_id"
-              class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-              required>
-              <option value="" disabled selected>Seleccione una empresa</option>
-              <option v-for="empresa in empresas" :key="empresa.id" :value="empresa.id">
-                {{ empresa.nombre }} ({{ empresa.ruc }})
-              </option>
-            </select>
-          </div>
+            <div class="mt-1">
+              <select id="empresa_id" v-model="form.empresa_id" name="empresa_id" required
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <option value="" disabled selected>Seleccione una empresa</option>
+                <option v-for="company in companies" :key="company.id" :value="company.id">
+                  {{ company.name }}
+                </option>
+              </select>
+            </div>
+          </div> -->
 
           <!-- Email -->
           <div>
@@ -66,9 +67,9 @@
 
           <!-- Submit Button -->
           <div>
-            <button type="submit" :disabled="loading"
+            <button type="submit" :disabled="authStore.isLoading"
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
-              <span v-if="!loading">Iniciar sesión</span>
+              <span v-if="!authStore.isLoading">Iniciar sesión</span>
               <span v-else class="flex items-center">
                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
                   viewBox="0 0 24 24">
@@ -84,7 +85,7 @@
         </form>
 
         <!-- Error Message -->
-        <div v-if="error" class="mt-4 bg-red-50 border-l-4 border-red-400 p-4">
+        <div v-if="authStore.error" class="mt-4 bg-red-50 border-l-4 border-red-400 p-4">
           <div class="flex">
             <div class="flex-shrink-0">
               <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
@@ -96,7 +97,7 @@
             </div>
             <div class="ml-3">
               <p class="text-sm text-red-700">
-                {{ error }}
+                {{ authStore.error }}
               </p>
             </div>
           </div>
@@ -108,58 +109,91 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/authStore'
 import api from '@/api/axios'
+import type { AxiosError } from 'axios'
 
 const router = useRouter()
-const loading = ref(false)
-const error = ref('')
-const empresas = ref([])
+const authStore = useAuthStore()
 
-const form = ref({
-  empresa_id: '',
+// Definición de tipos
+interface Company {
+  id: number
+  name: string
+}
+
+interface LoginForm {
+  email: string
+  password: string
+  remember: boolean
+  empresa_id?: string | number
+}
+
+
+// Variables reactivas con tipos
+const companies = ref<Company[]>([])
+const form = ref<LoginForm>({
   email: '',
   password: '',
-  remember: false
+  remember: false,
+  empresa_id: ''
 })
 
-// Obtener lista de empresas al cargar el componente
+// Carga inicial de empresas
 onMounted(async () => {
-  try {
-    const response = await api.get('/empresas')
-    empresas.value = response.data
-  } catch (err) {
-    error.value = 'Error al cargar las empresas. Intente nuevamente.'
-  }
+  await loadCompanies()
 })
 
-const login = async () => {
-  loading.value = true
-  error.value = ''
-
+/**
+ * Carga la lista de empresas desde la API
+ */
+async function loadCompanies(): Promise<void> {
   try {
-    const response = await api.post('/auth/login', form.value)
+    const response = await api.get<Company[]>('/empresas')
+    companies.value = response.data
+  } catch (error) {
+    handleApiError(error as AxiosError, 'Error al cargar empresas')
+  }
+}
 
-    // Guardar token y redirigir
-    localStorage.setItem('token', response.data.token)
-    localStorage.setItem('empresa_id', form.value.empresa_id);
+/**
+ * Maneja el proceso de login
+ */
+const handleLogin = async (): Promise<void> => {
+  try {
+    await authStore.login({
+      email: form.value.email,
+      password: form.value.password,
+      remember: form.value.remember,
+      empresa_id: form.value.empresa_id
+    })
 
-    axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`
+    redirectAfterLogin()
+  } catch (error) {
+    // El error ya está manejado en el store
+    console.error('Error en el componente de login:', error)
+  }
+}
 
-    router.push('/dashboard')
-  } catch (err) {
-    if (err.response && err.response.data.message) {
-      error.value = err.response.data.message
-    } else {
-      error.value = 'Error al iniciar sesión. Verifique sus credenciales.'
-    }
-  } finally {
-    loading.value = false
+/**
+ * Redirige al usuario según su companyId
+ */
+function redirectAfterLogin(): void {
+  const redirectPath = authStore.companyId === 1
+    ? '/admin/dashboard'
+    : '/select-empresa'
+  router.push(redirectPath)
+}
+
+/**
+ * Maneja errores de API de forma consistente
+ */
+function handleApiError(error: AxiosError, defaultMessage: string): void {
+  if (error.response) {
+    console.error(`${defaultMessage}:`, error.response.data)
+  } else {
+    console.error(defaultMessage, error.message)
   }
 }
 </script>
-
-<style scoped>
-/* Estilos adicionales si son necesarios */
-</style>

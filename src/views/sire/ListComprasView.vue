@@ -271,8 +271,13 @@ import {
 } from '@heroicons/vue/24/outline'
 import FiltroPeriodo from '@/components/FiltroPeriodo.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
-import api from '@/services/api';
+import api from '@/api/axios';
 import type { Invoice, Pagination, TableHeader } from '@/types/sireCompras'; // Asegúrate de que la ruta sea correcta
+
+// Para el uso en otros componentes
+/* import { useEmpresaStore } from '@/stores/empresaStore' */
+/* const empresaStore = useEmpresaStore() */
+/* const empresaRuc = empresaStore.empresaSeleccionada?.ruc */
 
 // Función para obtener la fecha formateada usando day.js
 function obtPerTributario() {
@@ -299,11 +304,13 @@ async function fetchInvoices() {
   try {
     loading.value = true
     error.value = null
-    const rucString = localStorage.getItem('selected_empresa_ruc');
+    const rucString = localStorage.getItem('empresaRuc');
     if (!rucString) {
       throw new Error('RUC no encontrado en el almacenamiento local');
     }
-    const response = await api.get<{ data: Invoice[] }>(`/compras-sire/por-periodo?per_periodo=${perTributario.value}&per_ruc=${rucString}`);
+    const empresaRuc = localStorage.getItem('empresaRuc');
+    console.log('RUC de la empresa seleccionada:', empresaRuc);
+    const response = await api.get<{ data: Invoice[] }>(`/compras-sire/por-periodo?per_periodo=${perTributario.value}&per_ruc=${empresaRuc}`);
 
     // Actualizar las variables reactivas
     invoices.value = response.data.data;

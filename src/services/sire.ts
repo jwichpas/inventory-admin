@@ -373,9 +373,9 @@ export async function getReporteCumpRCE(): Promise<void> {
     console.log('Total de registros:', totalRegistro)
 
     /* Detalle Resumen */
-    await api.post(`/v1/reportecumplimiento/detalleresumen`, datosRepCumple)
+    await api.post(`/reportecumplimiento/detalleresumen`, datosRepCumple)
     /* Resumen */
-    await api.post(`/v1/reportecumplimiento/resumen`, datosRepCumple)
+    await api.post(`/reportecumplimiento/resumen`, datosRepCumple)
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(`Error ${error.response?.status}: ${error.response?.data.message}`)
@@ -470,7 +470,7 @@ export function iniciarCicloPrincipal(): void {
   // Calcular la hora de inicio (12:30 PM)
   const ahora: Date = new Date()
   const horaInicio: Date = new Date(ahora)
-  horaInicio.setHours(16, 1, 0, 0) // Fijar la hora de inicio a las 19:31 PM
+  horaInicio.setHours(9, 22, 0, 0) // Fijar la hora de inicio a las 9:22 AM
 
   // Si ya pasaron las 10:25 AM, ajustar al siguiente ciclo (3 horas después)
   if (ahora > horaInicio) {

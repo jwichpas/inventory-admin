@@ -38,10 +38,13 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { defineEmits } from 'vue';
 import api from '@/api/axios'; // Importa tu instancia de axios
+/* import { useEmpresaStore } from '@/stores/empresaStore' */
+/* const empresaStore = useEmpresaStore() */
+/* const empresaId = empresaStore.empresaSeleccionada?.empresa_id */
 
 // Variables reactivas
 const ejercicios = ref([]); // Lista de ejercicios fiscales
@@ -59,7 +62,10 @@ const handleFilterClick = () => {
 // Función para cargar los datos de la API
 async function fetchData() {
   try {
-    const empresaId = localStorage.getItem('empresa_id'); // Obtener el ID de la empresa
+    const empresaId = localStorage.getItem('empresaId');
+
+    console.log('ID de la empresa:', empresaId); // Inspecciona el ID de la empresa
+    // Obtener el ID de la empresa
     if (!empresaId) {
       console.error('No se encontró el ID de la empresa en el localStorage.');
       return;

@@ -43,93 +43,108 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import { defineEmits } from 'vue';
-import api from '@/api/axios'; // Importa tu instancia de axios
+<script setup lang="ts">
+import { ref, onMounted, defineEmits } from 'vue'
+import api from '@/api/axios'
+import { useEmpresaStore } from '@/stores/empresaStore'
+const empresaStore = useEmpresaStore()
+const empresaId = empresaStore.empresaSeleccionada?.empresa_id
 
-// Variables reactivas
-const ejercicios = ref([]); // Lista de ejercicios fiscales
-const periodos = ref([]); // Lista completa de períodos
-const filteredPeriodos = ref([]); // Períodos filtrados por ejercicio
-const selectedEjercicio = ref(''); // Ejercicio seleccionado
-const selectedPeriodo = ref(''); // Período seleccionado
+// Definición de tipos
+interface Periodo {
+  numPeriodo: string
+  desPeriodo: string
+  fecInicio: string
+  fecFin: string
+  desEstado: string
+  numEjercicio: string
+  perTributario: string
+}
 
-const emit = defineEmits(['filter']);
+interface Ejercicio {
+  numEjercicio: string
+  desEstado: string
+  lisPeriodos: Periodo[]
+}
 
-const handleFilterClick = () => {
-  console.log('Emitiendo evento "filter"' + selectedPeriodo.value);
-  emit('filter', { periodo: selectedPeriodo.value });
-};
+// Variables reactivas con tipos
+const ejercicios = ref<Ejercicio[]>([])
+const periodos = ref<Periodo[]>([])
+const filteredPeriodos = ref<Periodo[]>([])
+const selectedEjercicio = ref<string>('')
+const selectedPeriodo = ref<string>('')
+
+// Emits con tipo
+const emit = defineEmits<{
+  (e: 'filter', payload: { periodo: string }): void
+}>()
+
+const handleFilterClick = (): void => {
+  console.log('Emitiendo evento "filter"' + selectedPeriodo.value)
+  emit('filter', { periodo: selectedPeriodo.value })
+}
+
 // Función para cargar los datos de la API
-async function fetchData() {
+async function fetchData(): Promise<void> {
   try {
-    const empresaId = localStorage.getItem('empresa_id'); // Obtener el ID de la empresa
+    /* const empresaId = localStorage.getItem('empresaId') */
     if (!empresaId) {
-      console.error('No se encontró el ID de la empresa en el localStorage.');
-      return;
+      console.error('No se encontró el ID de la empresa en el localStorage.')
+      return
     }
-    const response = await api.get('/periodosporruc', {
-      params: { empresa_id: empresaId }, // Envía el empresa_id como query string
-    });
-    console.log(response.data); // Inspecciona la estructura de la respuesta
-    const data = response.data;
 
-    // Procesar los datos recibidos
+    const response = await api.get<{ data?: Ejercicio[] } | Ejercicio[]>('/periodosporruc', {
+      params: { empresa_id: empresaId },
+    })
+
+    console.log(response.data)
+    const data = response.data
+
+    // Procesamiento seguro de datos con TypeScript
     if (Array.isArray(data)) {
-      ejercicios.value = data.map((item) => ({
-        numEjercicio: item.numEjercicio,
-        desEstado: item.desEstado,
-        lisPeriodos: item.lisPeriodos,
-      }));
-
-      periodos.value = data.flatMap((item) =>
-        item.lisPeriodos.map((periodo) => ({
-          ...periodo,
-          numEjercicio: item.numEjercicio,
-        }))
-      );
-    } else if (data && data.data && Array.isArray(data.data)) {
-      // Si la respuesta tiene un campo "data"
-      ejercicios.value = data.data.map((item) => ({
-        numEjercicio: item.numEjercicio,
-        desEstado: item.desEstado,
-        lisPeriodos: item.lisPeriodos,
-      }));
-
-      periodos.value = data.data.flatMap((item) =>
-        item.lisPeriodos.map((periodo) => ({
-          ...periodo,
-          numEjercicio: item.numEjercicio,
-        }))
-      );
+      processData(data)
+    } else if (data?.data && Array.isArray(data.data)) {
+      processData(data.data)
     } else {
-      console.error('La respuesta de la API no es un array:', data);
+      console.error('La respuesta de la API no tiene la estructura esperada:', data)
     }
   } catch (error) {
-    console.error('Error al cargar los datos:', error);
+    console.error('Error al cargar los datos:', error)
+    // Considera manejar el error de manera más específica
   }
 }
 
-// Función para filtrar los períodos según el ejercicio seleccionado
-function filterPeriodos() {
-  if (selectedEjercicio.value) {
-    filteredPeriodos.value = periodos.value.filter(
+// Función auxiliar para procesar datos
+function processData(data: Ejercicio[]): void {
+  ejercicios.value = data.map((item) => ({
+    numEjercicio: item.numEjercicio,
+    desEstado: item.desEstado,
+    lisPeriodos: item.lisPeriodos,
+  }))
+
+  periodos.value = data.flatMap((item) =>
+    item.lisPeriodos.map((periodo) => ({
+      ...periodo,
+      numEjercicio: item.numEjercicio,
+    }))
+  )
+}
+
+// Función para filtrar los períodos
+function filterPeriodos(): void {
+  filteredPeriodos.value = selectedEjercicio.value
+    ? periodos.value.filter(
       (periodo) => periodo.numEjercicio === selectedEjercicio.value
-    );
-  } else {
-    filteredPeriodos.value = [];
-  }
+    )
+    : []
 
-  // Reiniciar el período seleccionado
-  selectedPeriodo.value = '';
+  selectedPeriodo.value = ''
 }
 
-// Cargar los datos cuando el componente se monta
+// Cargar los datos al montar el componente
 onMounted(() => {
-  fetchData();
-  /* handleFilterClick(); */
-});
+  fetchData()
+})
 </script>
 
 <style scoped></style>
