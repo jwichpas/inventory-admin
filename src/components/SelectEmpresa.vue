@@ -1,12 +1,8 @@
 <template>
-  <div class=" bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center p-4 transition-colors duration-300">
+  <div class=" bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center rounded-xl transition-colors duration-300">
     <div
-      class="w-full max-w-6xl bg-white dark:bg-zinc-800 rounded-xl shadow-md overflow-hidden p-4 sm:p-6 transition-colors duration-300">
-      <!-- Header -->
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-xl sm:text-2xl font-bold text-zinc-800 dark:text-zinc-100">Sistema de Gestión</h1>
+      class="max bg-white dark:bg-zinc-800 rounded-xl shadow-md overflow-hidden p-4 sm:p-6 transition-colors duration-300">
 
-      </div>
 
       <!-- Estado de carga -->
       <div v-if="isLoading" class="flex flex-col items-center justify-center py-8 sm:py-12">
@@ -54,7 +50,7 @@
             }" @click="seleccionarEmpresa(empresa)">
             <div class="space-y-1 sm:space-y-2">
               <h4 class="font-semibold text-zinc-800 dark:text-zinc-100 text-sm sm:text-base">{{ empresa.empresa_nombre
-              }}</h4>
+                }}</h4>
               <p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">RUC: {{ empresa.ruc }}</p>
               <p class="text-xs text-zinc-500 dark:text-zinc-500">
                 Registrada el: {{ formatDate(empresa.created_at) }}

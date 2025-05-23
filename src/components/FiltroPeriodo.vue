@@ -3,9 +3,9 @@
 
   <!-- Selector de Ejercicio -->
   <div>
-    <label for="ejercicio" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Ejercicio</label>
+    <label for="ejercicio" class="block text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Ejercicio</label>
     <select id="ejercicio" v-model="selectedEjercicio" @change="filterPeriodos"
-      class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none dark:bg-neutral-700 dark:placeholder-neutral-400 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:border-indigo-600 dark:focus:ring-blue-100 ">
+      class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-zinc-300 focus:outline-none dark:bg-zinc-700 dark:placeholder-zinc-400 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:border-indigo-600 dark:focus:ring-blue-100 ">
       <option value="" disabled>Todas los periodos</option>
       <option v-for="ejercicio in ejercicios" :key="ejercicio.numEjercicio" :value="ejercicio.numEjercicio">
         {{ ejercicio.numEjercicio }} {{ ejercicio.desEstado }}
@@ -15,10 +15,9 @@
 
   <!-- Selector de Períodos -->
   <div class="col-auto sm:col-span-1">
-    <label for="periodo" class="inline-flex text-sm font-medium text-neutral-700 dark:text-neutral-300">Mes:</label>
+    <label for="periodo" class="inline-flex text-sm font-medium text-zinc-700 dark:text-zinc-200 mb-1">Mes:</label>
     <select id="periodo" v-model="selectedPeriodo"
-      class="mt-1 inline-flex w-full pl-3 pr-10 py-2 text-base text-neutral-950 border-neutral-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md
-                 dark:bg-neutral-700 dark:border-neutral-600 dark:placeholder-neutral-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+      class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-zinc-300 focus:outline-none dark:bg-zinc-700 dark:placeholder-zinc-400 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:border-indigo-600 dark:focus:ring-blue-100 ">
       <option value="" disabled>Selecciona un período</option>
       <option v-for="periodo in filteredPeriodos" :key="periodo.perTributario" :value="periodo.perTributario">
         {{ periodo.perTributario }}
@@ -29,10 +28,9 @@
 
   <!-- Botón de Buscar -->
   <div v-if="selectedEjercicio && selectedPeriodo" class="col-auto sm:col-span-1">
-    <label for="submit" class="inline-flex text-sm font-medium text-white dark:text-neutral-800">_</label>
-    <button @click="handleFilterClick" id="submit" class="mt-1 w-full inline-flex justify-center pl-3 pr-10 py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white
-                 bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300
-                 dark:focus:ring-blue-800 text-center me-2 mb-2">
+    <label for="submit" class="inline-flex text-sm font-medium text-white dark:text-zinc-800">_</label>
+    <button @click="handleFilterClick" id="submit"
+      class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
       Buscar
     </button>
   </div>

@@ -27,13 +27,14 @@
 
     <!-- Filtros -->
     <div
-      class="mb-6 bg-white  p-4 rounded-lg shadow-sm border border-indigo-200 dark:border-indigo-700 dark:bg-zinc-800">
+      class="mb-6 bg-white  p-4 rounded-lg shadow-sm border border-indigo-200 dark:border-indigo-700 dark:bg-zinc-900">
       <div class="flex flex-wrap items-center gap-4">
         <div>
           <label for="category"
             class="block text-sm font-medium text-zinc-700 mb-1 dark:text-zinc-200">Categoría</label>
           <select id="category" v-model="selectedCategory"
-            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-zinc-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base
+            border-zinc-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:bg-zinc-800 dark:border-zinc-600 dark:placeholder-zinc-400">
             <option value="">Todas las categorías</option>
             <option v-for="category in categories" :key="category.id" :value="category.id">
               {{ category.name }}
@@ -44,7 +45,7 @@
         <div>
           <label for="status" class="block text-sm font-medium text-zinc-700 mb-1 dark:text-zinc-200">Estado</label>
           <select id="status" v-model="selectedStatus"
-            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-zinc-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-zinc-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md dark:bg-zinc-800 dark:border-zinc-600 dark:placeholder-zinc-400">
             <option value="">Todos los estados</option>
             <option value="active">Activo</option>
             <option value="inactive">Inactivo</option>
@@ -52,7 +53,8 @@
           </select>
         </div>
         <FiltroPeriodo @filter="handleFilter" />
-        <button @click="resetFilters" class="self-end text-sm text-indigo-600 hover:text-indigo-800">
+        <button @click="resetFilters"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
           Limpiar filtros
         </button>
       </div>
@@ -63,7 +65,7 @@
       class="bg-white dark:bg-zinc-950 shadow-sm rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
-          <thead class="bg-zinc-50 dark:bg-zinc-700">
+          <thead class="bg-zinc-50 dark:bg-zinc-950">
             <tr>
               <th v-for="header in headers" :key="header.key" scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-300 uppercase tracking-wider">
@@ -80,7 +82,7 @@
               </th>
             </tr>
           </thead>
-          <tbody class="bg-white dark:bg-zinc-800 divide-y divide-zinc-200 dark:divide-zinc-700">
+          <tbody class="bg-white dark:bg-zinc-900 divide-y divide-zinc-200 dark:divide-zinc-700">
             <tr v-if="filteredInvoices.length === 0">
               <td :colspan="headers.length + 1" class="px-6 py-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
                 No se encontraron compras
@@ -169,11 +171,20 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex justify-end space-x-3">
+
+                  <div v-if="invoice" class="flex items-center justify-center h-5 w-5 ">
+                    <a href=""
+                      class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                      title="Ver XML">
+                      <img src="../../assets/images/icons/xml.svg" alt="" class="h-10 w-10 object-contain">
+                    </a>
+                  </div>
                   <router-link :to="`sire/compras/${invoice.id}`"
                     class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                     title="Ver detalle">
                     <EyeIcon class="h-5 w-5" />
                   </router-link>
+
                   <router-link :to="`/sire/compras/edit/${invoice.id}`"
                     class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
                     title="Editar">
@@ -220,6 +231,7 @@
           </div>
           <div>
             <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+
               <button @click="prevPage" :disabled="pagination.currentPage === 1"
                 class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 text-sm font-medium text-zinc-500 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-600 disabled:opacity-50 disabled:cursor-not-allowed">
                 <span class="sr-only">Anterior</span>
@@ -294,7 +306,7 @@ const totalGravadas: Ref<number> = ref(0);
 const perTributario: Ref<string> = ref('')
 const showDeleteModal: Ref<boolean> = ref(false)
 const invoiceDelete: Ref<Invoice | null> = ref(null)
-
+const archivo: Ref<string> = ref('')
 const selectedCategory: Ref<string> = ref('')
 const selectedStatus: Ref<string> = ref('')
 const sortField: Ref<string> = ref('nom_razon_social_proveedor')

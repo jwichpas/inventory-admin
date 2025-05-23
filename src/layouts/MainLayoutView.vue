@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex overflow-x-hidden">
+  <div class="min-h-screen bg-zinc-50 dark:bg-zinc-950  dark:text-zinc-500 flex overflow-x-hidden">
     <!-- Sidebar y overlay para mobile -->
     <div v-if="mobileSidebarOpen" class="fixed inset-0 z-10 bg-black/50 lg:hidden" @click="mobileSidebarOpen = false">
     </div>
@@ -15,24 +15,24 @@
     }">
       <!-- Header -->
       <header
-        class="sticky top-0 z-10 bg-white dark:bg-neutral-800 shadow-sm border-b border-neutral-200 dark:border-neutral-700">
+        class="sticky top-0 z-10 bg-white dark:bg-zinc-950 shadow-sm border-b border-zinc-200 dark:border-zinc-700">
         <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
             <!-- Título y breadcrumbs -->
             <div class="flex items-center space-x-4">
               <!-- Botón para mobile -->
               <button @click="mobileSidebarOpen = !mobileSidebarOpen"
-                class="lg:hidden p-2 rounded-md text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none transition-colors">
+                class="lg:hidden p-2 rounded-md text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 focus:outline-none transition-colors">
                 <Bars3Icon class="h-5 w-5" />
               </button>
 
-              <h1 class="text-xl font-bold text-neutral-900 dark:text-white truncate">
+              <h1 class="text-xl font-bold text-zinc-900 dark:text-white truncate">
                 {{ $route.meta.title || 'Dashboard' }}
               </h1>
 
               <nav class="hidden md:flex items-center space-x-1 text-sm">
                 <router-link v-for="(crumb, index) in breadcrumbs" :key="index" :to="crumb.path"
-                  class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300 transition-colors truncate">
+                  class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors truncate">
                   {{ crumb.meta.title }}
                   <span v-if="index < breadcrumbs.length - 1" class="mx-1">/</span>
                 </router-link>
@@ -43,13 +43,13 @@
             <div class="flex items-center space-x-4">
               <!-- Botón de toggle para modo oscuro -->
               <button @click="toggleDarkMode"
-                class="p-2 rounded-full text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700">
+                class="p-2 rounded-full text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700">
                 <MoonIcon v-if="darkMode" class="h-5 w-5" />
                 <SunIcon v-else class="h-5 w-5" />
               </button>
 
               <button
-                class="p-2 rounded-full text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 relative">
+                class="p-2 rounded-full text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 relative">
                 <BellIcon class="h-5 w-5" />
                 <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
               </button>
@@ -60,11 +60,10 @@
                     class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white font-medium">
                     {{ userInitials }}
                   </div>
-                  <span
-                    class="hidden md:inline text-sm font-medium text-neutral-700 dark:text-neutral-300 truncate max-w-xs">
+                  <span class="hidden md:inline text-sm font-medium text-zinc-700 dark:text-zinc-300 truncate max-w-xs">
                     {{ userName }}
                   </span>
-                  <ChevronDownIcon class="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+                  <ChevronDownIcon class="h-4 w-4 text-zinc-500 dark:text-zinc-400" />
                 </button>
 
                 <!-- Menú desplegable usuario -->
@@ -73,18 +72,22 @@
                   leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
                   leave-to-class="transform opacity-0 scale-95">
                   <div v-if="showUserMenu" v-click-outside="closeUserMenu"
-                    class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-neutral-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-30">
+                    class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-zinc-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-30">
                     <div class="py-1">
                       <router-link to="/profile"
-                        class="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700">
+                        class="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700">
                         Mi perfil
                       </router-link>
                       <router-link to="/settings"
-                        class="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700">
+                        class="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700">
                         Configuración
                       </router-link>
+                      <router-link to="/select-empresa"
+                        class="block px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700">
+                        Cambiar empresa
+                      </router-link>
                       <button @click="logout"
-                        class="w-full text-left px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700">
+                        class="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700">
                         Cerrar sesión
                       </button>
                     </div>
@@ -102,7 +105,7 @@
           <!-- Aquí va el contenido dinámico -->
           <div class="max-w-full mx-auto">
             <div
-              class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-4 sm:p-6">
+              class="bg-white dark:bg-zinc-950 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6">
               <router-view v-slot="{ Component }">
                 <div class="space-y-6">
                   <transition name="fade" mode="out-in" enter-active-class="transition-opacity duration-300 ease-out"

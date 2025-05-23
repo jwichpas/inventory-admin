@@ -23,7 +23,12 @@ export interface Invoice {
   des_estado_comprobante: string
   mto_total_cp: number
   montos: Montos
+  archivo: Archivo
   // Agrega otros campos que puedan existir
+}
+export interface Archivo {
+  compra_id: BigInteger
+  xml: string
 }
 
 export interface Pagination {

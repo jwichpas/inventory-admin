@@ -3,8 +3,8 @@
     <!-- Mobile menu button -->
     <div class="lg:hidden fixed top-4 left-4 z-50">
       <button @click="mobileMenuOpen = !mobileMenuOpen"
-        class="p-2 rounded-md text-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-700 focus:outline-none transition-colors">
-        <Bars3Icon class="h-6 w-6 text-neutral-600 dark:text-neutral-300" />
+        class="p-2 rounded-md text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 focus:outline-none transition-colors">
+        <Bars3Icon class="h-6 w-6 text-zinc-600 dark:text-zinc-300" />
       </button>
     </div>
 
@@ -23,14 +23,15 @@
       'w-20': minimized,
       'w-64': !minimized
     }"
-      class="fixed inset-y-0 left-0 z-40 bg-white dark:bg-neutral-950 shadow-xl transform transition-all duration-300 ease-in-out flex flex-col border-r border-neutral-200 dark:border-neutral-700">
+      class="fixed inset-y-0 left-0 z-40 bg-white dark:text-zinc-500 dark:bg-zinc-950 shadow-xl transform transition-all duration-300 ease-in-out flex flex-col border-r border-zinc-200 dark:border-zinc-700">
 
       <!-- Logo/Sidebar Header -->
-      <div class="flex items-center justify-between h-16 px-4 bg-indigo-600 dark:bg-neutral-900 shrink-0">
+      <div
+        class="flex items-center justify-between h-16 px-4 dark:text-zinc-500 bg-indigo-600 dark:bg-zinc-950 shrink-0">
         <transition name="fade" mode="out-in">
           <router-link to="/" v-if="!minimized" class="flex items-center space-x-2">
             <span class="text-white font-bold text-xl whitespace-nowrap">
-              InventoryApp
+              Contabilidad IA
             </span>
           </router-link>
           <router-link to="/" v-else class="flex items-center justify-center w-full">
@@ -54,37 +55,37 @@
       </div>
 
       <!-- Navigation -->
-      <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-2">
+      <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-2 dark:text-zinc-500">
         <div v-for="item in navigation" :key="item.name">
           <button v-if="item.children" @click="toggleSubmenu(item.name)"
             class="group flex items-center justify-between w-full px-3 py-2.5 text-sm font-medium rounded-lg transition-colors"
             :class="{
-              'text-neutral-900 dark:text-white bg-neutral-100 dark:bg-neutral-700': openSubmenus[item.name],
-              'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-700': !openSubmenus[item.name]
+              'text-zinc-900 dark:text-white bg-zinc-100 dark:bg-zinc-700': openSubmenus[item.name],
+              'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !openSubmenus[item.name]
             }">
             <div class="flex items-center">
               <component :is="item.icon" class="flex-shrink-0 h-5 w-5 mr-3 transition-colors" :class="{
                 'text-indigo-600 dark:text-indigo-400': openSubmenus[item.name],
-                'text-neutral-500 group-hover:text-indigo-600 dark:text-neutral-400 dark:group-hover:text-indigo-400': !openSubmenus[item.name]
+                'text-zinc-500 group-hover:text-indigo-600 dark:text-zinc-400 dark:group-hover:text-indigo-400': !openSubmenus[item.name]
               }" />
               <transition name="slide-fade">
                 <span v-if="!minimized">{{ item.name }}</span>
               </transition>
             </div>
             <ChevronDownIcon class="h-4 w-4 transform transition-transform"
-              :class="{ 'rotate-180': openSubmenus[item.name], 'text-neutral-400': true }" />
+              :class="{ 'rotate-180': openSubmenus[item.name], 'text-zinc-400': true }" />
           </button>
 
           <router-link v-else :to="item.to" v-slot="{ isActive }"
             class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors" :class="{
-              'bg-indigo-50 text-indigo-600 dark:bg-neutral-700 dark:text-indigo-400': isActive,
-              'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-700': !isActive,
+              'bg-indigo-50 text-indigo-600 dark:bg-zinc-700 dark:text-indigo-400': isActive,
+              'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !isActive,
               'justify-center': minimized
             }">
             <component :is="item.icon" class="flex-shrink-0 h-5 w-5" :class="{
               'mr-3': !minimized,
               'text-indigo-600 dark:text-indigo-400': isActive,
-              'text-neutral-500 group-hover:text-indigo-600 dark:text-neutral-400 dark:group-hover:text-indigo-400': !isActive
+              'text-zinc-500 group-hover:text-indigo-600 dark:text-zinc-400 dark:group-hover:text-indigo-400': !isActive
             }" />
             <transition name="slide-fade">
               <span v-if="!minimized">{{ item.name }}</span>
@@ -99,8 +100,8 @@
             <div v-show="item.children && openSubmenus[item.name]" class="ml-8 mt-1 space-y-1">
               <router-link v-for="child in item.children" :key="child.name" :to="child.to" v-slot="{ isActive }"
                 class="block px-3 py-2 text-sm rounded-lg transition-colors" :class="{
-                  'bg-indigo-50 text-indigo-600 dark:bg-neutral-700 dark:text-indigo-400': isActive,
-                  'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-700': !isActive
+                  'bg-indigo-50 text-indigo-600 dark:bg-zinc-700 dark:text-indigo-400': isActive,
+                  'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !isActive
                 }">
                 {{ child.name }}
               </router-link>
@@ -112,21 +113,21 @@
         <div class="mt-8 px-1">
           <transition name="fade">
             <h3 v-if="!minimized"
-              class="px-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+              class="px-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
               Administración
             </h3>
           </transition>
           <div class="mt-1 space-y-1">
             <router-link v-for="item in adminNavigation" :key="item.name" :to="item.to" v-slot="{ isActive }"
               class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors" :class="{
-                'bg-indigo-50 text-indigo-600 dark:bg-neutral-700 dark:text-indigo-400': isActive,
-                'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-700': !isActive,
+                'bg-indigo-50 text-indigo-600 dark:bg-zinc-700 dark:text-indigo-400': isActive,
+                'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !isActive,
                 'justify-center': minimized
               }">
               <component :is="item.icon" class="flex-shrink-0 h-5 w-5" :class="{
                 'mr-3': !minimized,
                 'text-indigo-600 dark:text-indigo-400': isActive,
-                'text-neutral-500 group-hover:text-indigo-600 dark:text-neutral-400 dark:group-hover:text-indigo-400': !isActive
+                'text-zinc-500 group-hover:text-indigo-600 dark:text-zinc-400 dark:group-hover:text-indigo-400': !isActive
               }" />
               <transition name="slide-fade">
                 <span v-if="!minimized">{{ item.name }}</span>
@@ -138,14 +139,14 @@
       </nav>
 
       <!-- Dark Mode Toggle -->
-      <div class="mt-auto p-4 border-t border-neutral-200 dark:border-neutral-700">
+      <div class="mt-auto p-4 border-t border-zinc-200 dark:border-zinc-700">
         <button @click="toggleDarkMode"
-          class="flex items-center justify-between w-full p-2 rounded-lg transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-700">
+          class="flex items-center justify-between w-full p-2 rounded-lg transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700">
           <div class="flex items-center">
             <MoonIcon v-if="isDark" class="h-5 w-5 text-indigo-400 mr-2" />
             <SunIcon v-else class="h-5 w-5 text-indigo-600 mr-2" />
             <transition name="slide-fade">
-              <span v-if="!minimized" class="text-sm text-neutral-700 dark:text-neutral-300">
+              <span v-if="!minimized" class="text-sm text-zinc-700 dark:text-zinc-300">
                 {{ isDark ? 'Modo oscuro' : 'Modo claro' }}
               </span>
             </transition>
@@ -154,7 +155,7 @@
             class="relative inline-flex items-center h-5 rounded-full w-10 transition-colors duration-200 ease-in-out"
             :class="{
               'bg-indigo-600': !isDark,
-              'bg-neutral-600': isDark
+              'bg-zinc-600': isDark
             }">
             <span :class="{
               'translate-x-5': isDark,
@@ -166,19 +167,19 @@
       </div>
 
       <!-- User Profile -->
-      <div class="p-4 border-t border-neutral-200 dark:border-neutral-700 shrink-0">
+      <div class="p-4 border-t border-zinc-200 dark:border-zinc-700 shrink-0">
         <div class="flex items-center" :class="{ 'justify-center': minimized }">
           <div class="relative">
             <img class="h-8 w-8 rounded-full object-cover"
               src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
               alt="User profile">
             <span
-              class="absolute bottom-0 right-0 block h-2 w-2 rounded-full bg-green-400 ring-2 ring-white dark:ring-neutral-800"></span>
+              class="absolute bottom-0 right-0 block h-2 w-2 rounded-full bg-green-400 ring-2 ring-white dark:ring-zinc-800"></span>
           </div>
           <transition name="slide-fade">
             <div v-if="!minimized" class="ml-3 overflow-hidden">
-              <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200 truncate">John Doe</p>
-              <p class="text-xs font-medium text-neutral-500 dark:text-neutral-400 truncate">Admin</p>
+              <p class="text-sm font-medium text-zinc-700 dark:text-zinc-200 truncate">John Doe</p>
+              <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 truncate">Admin</p>
             </div>
           </transition>
         </div>
