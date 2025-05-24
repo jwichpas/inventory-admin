@@ -9,22 +9,6 @@
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <form class="space-y-6" @submit.prevent="handleLogin">
-          <!-- Empresa Selector -->
-          <!--           <div v-if="companies.length > 0">
-            <label for="empresa_id" class="block text-sm font-medium text-gray-700">
-              Empresa
-            </label>
-            <div class="mt-1">
-              <select id="empresa_id" v-model="form.empresa_id" name="empresa_id" required
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-                <option value="" disabled selected>Seleccione una empresa</option>
-                <option v-for="company in companies" :key="company.id" :value="company.id">
-                  {{ company.name }}
-                </option>
-              </select>
-            </div>
-          </div> -->
-
           <!-- Email -->
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700">

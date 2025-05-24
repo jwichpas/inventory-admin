@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import LoginView from '@/views/auth/LoginView.vue'
 import RegisterView from '@/views/auth/RegisterView.vue'
-import AdminLayoutView from '@/layouts/MainLayoutView.vue'
+
 import IndexUsers from '@/views/admin/users/IndexView.vue'
 import IndexSettings from '@/views/admin/settings/IndexView.vue'
 import IndexCompanies from '@/views/admin/companies/IndexView.vue'
@@ -17,11 +17,24 @@ import SelectEmpresa from '@/components/SelectEmpresa.vue'
 
 import DashboardView from '@/views/DashboardView.vue'
 import { useAuthStore } from '@/stores/authStore'
+//Layouts
+import AdminLayoutView from '@/layouts/MainLayoutView.vue'
+import AuthLayout from '@/layouts/AuthLayout.vue'
+
+import HomeView from '@/views/HomeView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
+      name: 'Landing',
+      component: HomeView,
+      meta: {
+        requiresGuest: true,
+      },
+    },
+    {
+      path: '/app',
       component: AdminLayoutView,
       meta: { requiresAuth: true },
       children: [
@@ -123,8 +136,14 @@ const router = createRouter({
         },
       ],
     },
-    { path: '/login', component: LoginView, name: 'login', meta: { guestOnly: true } },
+
     { path: '/register', component: RegisterView },
+    { path: '/login', component: LoginView },
+    // Ruta de redirección para rutas no encontradas
+    /* {
+      path: '/:pathMatch(.*)*',
+      redirect: '/',
+    }, */
   ],
 })
 
