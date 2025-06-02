@@ -29,7 +29,7 @@ export function useCategories() {
       const response: AxiosResponse<{
         is_valid: boolean
         message: string
-      }> = await api.post('/categories/validate-code', {
+      }> = await api.post('/categories-validate/validate-code', {
         codigo,
         enterprise_id: currentEnterprise.value,
       })

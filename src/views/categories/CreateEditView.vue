@@ -230,12 +230,12 @@ const submitForm = async () => {
     isSubmitting.value = false;
   }
 };
+
 const validateCode = debounce(async () => {
   if (!form.value.codigo) {
     codeError.value = 'El código es requerido';
     return;
   }
-
   const validation = await validateCodeHybrid(form.value.codigo);
   if (!validation.isValid) {
     codeError.value = validation.message;
@@ -243,6 +243,7 @@ const validateCode = debounce(async () => {
     codeError.value = '';
   }
 }, 500);
+
 
 // Función auxiliar para convertir base64 a Blob
 function dataURLtoBlob(dataurl) {

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosResponse } from 'axios'
-// import moment from 'moment';
+import dayjs from 'dayjs'
 import api from '@/api/axios'
 
 interface Empresa {
@@ -36,7 +36,8 @@ interface Consulta {
 
 function obtenerPerPeriodo(): string {
   // Ejemplo: "202310" para octubre de 2023 // return moment().format('YYYYMM')
-  return '202504' // Ejemplo: "202310" para octubre de 2023
+  /* return '202504' // Ejemplo: "202310" para octubre de 2023 */
+  return dayjs().format('YYYYMM') // Usando dayjs para formatear la fecha actual
 }
 
 // Configuración de Axios para la API de seguridad de SUNAT
@@ -51,18 +52,18 @@ const sunatApi: AxiosInstance = axios.create({
 // Función para obtener los datos de la empresa
 async function obtenerDatosEmpresa(): Promise<Empresa> {
   try {
-    const idString: string | null = localStorage.getItem('empresa_id')
-    console.log('RUC:', idString)
+    const idString: string | null = localStorage.getItem('empresaId')
+    console.log('ID:', idString)
 
     if (!idString) {
       throw new Error('No se encontró el ID de la empresa en localStorage')
     }
 
-    const response: AxiosResponse<Empresa> = await api.get(`/empresas/${idString}`)
-    console.log(response.data)
+    const response: AxiosResponse<Empresa> = await api.get(`/empresas-datos/${idString}`)
+    /* console.log(response.data) */
 
-    if (response.data && response.data.id) {
-      return response.data // Retorna la primera empresa del array
+    if (response.data && response.data.data.ruc) {
+      return response.data.data // Retorna la primera empresa del array
     }
     throw new Error('No se encontraron datos de la empresa')
   } catch (error) {
@@ -301,7 +302,7 @@ export async function fetchPeriodos(): Promise<any> {
     const totalRegistro = datosPeriodos
     console.log('Total de registros:', totalRegistro)
 
-    const id: string | null = localStorage.getItem('empresa_id')
+    const id: string | null = localStorage.getItem('empresaId')
     if (!id) {
       throw new Error('No se encontró el ID de la empresa en localStorage')
     }
@@ -401,7 +402,7 @@ export async function contribuyentesSunat(): Promise<void> {
     const totalRegistro = datosRepCumple
     console.log('Total de registros:', totalRegistro)
 
-    const id: string | null = localStorage.getItem('empresa_id')
+    const id: string | null = localStorage.getItem('empresaId')
     if (!id) {
       throw new Error('No se encontró el ID de la empresa en localStorage')
     }
@@ -470,7 +471,7 @@ export function iniciarCicloPrincipal(): void {
   // Calcular la hora de inicio (12:30 PM)
   const ahora: Date = new Date()
   const horaInicio: Date = new Date(ahora)
-  horaInicio.setHours(9, 22, 0, 0) // Fijar la hora de inicio a las 9:22 AM
+  horaInicio.setHours(9, 0, 0, 0) // Fijar la hora de inicio a las 09:00 AM
 
   // Si ya pasaron las 10:25 AM, ajustar al siguiente ciclo (3 horas después)
   if (ahora > horaInicio) {

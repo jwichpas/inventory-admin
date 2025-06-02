@@ -76,49 +76,8 @@
               :class="{ 'rotate-180': openSubmenus[item.name], 'text-zinc-400': true }" />
           </button>
 
-          <router-link v-else :to="item.to" v-slot="{ isActive }"
-            class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors" :class="{
-              'bg-indigo-50 text-indigo-600 dark:bg-zinc-700 dark:text-indigo-400': isActive,
-              'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !isActive,
-              'justify-center': minimized
-            }">
-            <component :is="item.icon" class="flex-shrink-0 h-5 w-5" :class="{
-              'mr-3': !minimized,
-              'text-indigo-600 dark:text-indigo-400': isActive,
-              'text-zinc-500 group-hover:text-indigo-600 dark:text-zinc-400 dark:group-hover:text-indigo-400': !isActive
-            }" />
-            <transition name="slide-fade">
-              <span v-if="!minimized">{{ item.name }}</span>
-            </transition>
-            <span v-if="minimized" class="sr-only">{{ item.name }}</span>
-          </router-link>
-
-          <transition enter-active-class="transition-all duration-200 ease-out"
-            leave-active-class="transition-all duration-150 ease-in" enter-from-class="max-h-0 opacity-0"
-            enter-to-class="max-h-96 opacity-100" leave-from-class="max-h-96 opacity-100"
-            leave-to-class="max-h-0 opacity-0">
-            <div v-show="item.children && openSubmenus[item.name]" class="ml-8 mt-1 space-y-1">
-              <router-link v-for="child in item.children" :key="child.name" :to="child.to" v-slot="{ isActive }"
-                class="block px-3 py-2 text-sm rounded-lg transition-colors" :class="{
-                  'bg-indigo-50 text-indigo-600 dark:bg-zinc-700 dark:text-indigo-400': isActive,
-                  'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !isActive
-                }">
-                {{ child.name }}
-              </router-link>
-            </div>
-          </transition>
-        </div>
-
-        <!-- Admin Section -->
-        <div class="mt-8 px-1">
-          <transition name="fade">
-            <h3 v-if="!minimized"
-              class="px-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-              Administración
-            </h3>
-          </transition>
-          <div class="mt-1 space-y-1">
-            <router-link v-for="item in adminNavigation" :key="item.name" :to="item.to" v-slot="{ isActive }"
+          <router-link v-else :to="item.to" custom v-slot="{ href, navigate, isActive }">
+            <a :href="href" @click="navigate"
               class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors" :class="{
                 'bg-indigo-50 text-indigo-600 dark:bg-zinc-700 dark:text-indigo-400': isActive,
                 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !isActive,
@@ -133,6 +92,54 @@
                 <span v-if="!minimized">{{ item.name }}</span>
               </transition>
               <span v-if="minimized" class="sr-only">{{ item.name }}</span>
+            </a>
+          </router-link>
+
+          <transition enter-active-class="transition-all duration-200 ease-out"
+            leave-active-class="transition-all duration-150 ease-in" enter-from-class="max-h-0 opacity-0"
+            enter-to-class="max-h-96 opacity-100" leave-from-class="max-h-96 opacity-100"
+            leave-to-class="max-h-0 opacity-0">
+            <div v-show="item.children && openSubmenus[item.name]" class="ml-8 mt-1 space-y-1">
+              <router-link v-for="child in item.children" :key="child.name" :to="child.to" custom
+                v-slot="{ href, navigate, isActive }">
+                <a :href="href" @click="navigate" class="block px-3 py-2 text-sm rounded-lg transition-colors" :class="{
+                  'bg-indigo-50 text-indigo-600 dark:bg-zinc-700 dark:text-indigo-400': isActive,
+                  'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !isActive
+                }">
+                  {{ child.name }}
+                </a>
+              </router-link>
+            </div>
+          </transition>
+        </div>
+
+        <!-- Admin Section -->
+        <div class="mt-8 px-1">
+          <transition name="fade">
+            <h3 v-if="!minimized"
+              class="px-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+              Administración
+            </h3>
+          </transition>
+          <div class="mt-1 space-y-1">
+            <router-link v-for="item in adminNavigation" :key="item.name" :to="item.to" custom
+              v-slot="{ href, navigate, isActive }">
+              <a :href="href" @click="navigate"
+                class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors" :class="{
+                  'bg-indigo-50 text-indigo-600 dark:bg-zinc-700 dark:text-indigo-400': isActive,
+                  'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !isActive,
+                  'justify-center': minimized
+                }">
+                <component :is="item.icon" class="flex-shrink-0 h-5 w-5" :class="{
+                  'mr-3': !minimized,
+                  'text-indigo-600 dark:text-indigo-400': isActive,
+                  'text-zinc-500 group-hover:text-indigo-600 dark:text-zinc-400 dark:group-hover:text-indigo-400': !isActive
+                }" />
+                <transition name="slide-fade">
+                  <span v-if="!minimized">{{ item.name }}</span>
+                </transition>
+                <span v-if="minimized" class="sr-only">{{ item.name }}</span>
+              </a>
             </router-link>
           </div>
         </div>
@@ -238,9 +245,10 @@ const navigation = [
     children: [
       { name: 'Productos', to: '/products' },
       { name: 'Categorías', to: '/categories' },
+      { name: 'Atributos', to: '/atributos' },
       { name: 'Subcategorías', to: '/products/subcategory' },
-      { name: 'Unidades', to: '/products/measure-unit' },
-      { name: 'Tipos', to: '/products/product-type' },
+      /* { name: 'Unidades', to: '/products/measure-unit' },
+      { name: 'Tipos', to: '/products/product-type' }, */
       { name: 'Marcas', to: '/brands' }
     ]
   },
@@ -248,21 +256,23 @@ const navigation = [
     name: 'Sire SUNAT', icon: DocumentDuplicateIcon,
     children: [
       { name: 'Compras', to: '/sire/compras' },
-      { name: 'Ventas', to: '/sire/sales' },
-      { name: 'Resumen', to: '/sire/resumens' }
+      { name: 'Compras Detalle', to: '/sire/compras-detalles' },
+      { name: 'Ventas', to: '/sire/ventas' },
+
+      /* { name: 'Resumen', to: '/sire/resumens' } */
     ]
   },
-  { name: 'Ventas', to: '/sales', icon: UsersIcon },
+  /* { name: 'Ventas', to: '/sales', icon: UsersIcon },
   { name: 'Compras', to: '/purchases', icon: ShoppingCartIcon },
   { name: 'Movimientos', to: '/movements', icon: CubeIcon },
   { name: 'Reportes', to: '/reports', icon: ChartBarIcon },
-  { name: 'Inventario', to: '/inventory', icon: FolderIcon },
+  { name: 'Inventario', to: '/inventory', icon: FolderIcon }, */
 ]
 
 const adminNavigation = [
   { name: 'Usuarios', to: '/admin/users', icon: UserGroupIcon },
   { name: 'Empresas', to: '/admin/companies', icon: ShieldCheckIcon },
-  { name: 'Configuración', to: '/settings', icon: CogIcon },
+  /* { name: 'Configuración', to: '/settings', icon: CogIcon }, */
 ]
 
 // Minimizar/expandir sidebar

@@ -91,11 +91,11 @@
 
             <tr v-for="invoice in paginatedInvoices" :key="invoice.id"
               class="hover:bg-zinc-50 dark:hover:bg-zinc-700/50">
-              <td class="px-6 py-4 whitespace-nowrap">
+              <td class="px-6 py-4 whitespace-nowrap truncate max-w-xs">
                 <div class="flex items-center">
                   <div
-                    class="flex-shrink-0 h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mr-3">
-                    <span class="text-blue-600 dark:text-blue-300 font-medium text-sm">
+                    class="flex-shrink-0 h-10 w-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center truncate justify-center mr-3">
+                    <span class="text-blue-600 dark:text-blue-300 font-medium text-sm truncate">
                       {{ invoice.nom_razon_social_proveedor?.charAt(0) || 'P' }}
                     </span>
                   </div>
@@ -171,19 +171,15 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <div class="flex justify-end space-x-3">
-
-                  <div v-if="invoice" class="flex items-center justify-center h-5 w-5 ">
-                    <a href=""
-                      class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
-                      title="Ver XML">
-                      <img src="../../assets/images/icons/xml.svg" alt="" class="h-10 w-10 object-contain">
-                    </a>
-                  </div>
-                  <router-link :to="`sire/compras/${invoice.id}`"
-                    class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
-                    title="Ver detalle">
+                  <button @click="openModal(invoice)"
+                    class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
                     <EyeIcon class="h-5 w-5" />
-                  </router-link>
+                  </button>
+
+                  <img src="../../assets/images/icons/xml.svg" @click="showXML(invoice)" alt="ver XML"
+                    class="h-5 w-5 object-contain">
+                  <img src="../../assets/images/icons/pdf.svg" @click="showPDF(invoice)" alt="ver XML"
+                    class="h-5 w-5 object-contain">
 
                   <router-link :to="`/sire/compras/edit/${invoice.id}`"
                     class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300"
@@ -254,8 +250,13 @@
           </div>
         </div>
       </div>
-    </div>
+      <!-- Modal de detalle -->
 
+    </div>
+    <DetailModal :isOpen="modalIsOpen" :compra="selectedCompra" @close="closeModal" />
+    <!-- Modal -->
+    <ModalXMLViewer :isOpen="showModal" :xmlContent="xmlContent" @close="closeModalXml" />
+    <ModalPDFViewer :isOpen="showPdfModal" :pdfEndpoint="pdfEndpoint" :params="pdfParams" @close="closePdfModal" />
     <!-- Modal de confirmación -->
     <ConfirmationModal :show="showDeleteModal" @close="showDeleteModal = false" @confirm="deleteInvoice"
       title="Eliminar producto">
@@ -285,12 +286,81 @@ import FiltroPeriodo from '@/components/FiltroPeriodo.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import api from '@/api/axios';
 import type { Invoice, Pagination, TableHeader } from '@/types/sireCompras'; // Asegúrate de que la ruta sea correcta
+import DetailModal from '@/components/sire/ComprasItems.vue'
+import ModalXMLViewer from '@/components/sire/ModalXMLViewer.vue'
+import ModalPDFViewer from '@/components/sire/ModalPDFViewer.vue'
 
 // Para el uso en otros componentes
 /* import { useEmpresaStore } from '@/stores/empresaStore' */
 /* const empresaStore = useEmpresaStore() */
 /* const empresaRuc = empresaStore.empresaSeleccionada?.ruc */
 
+
+const modalIsOpen = ref(false)
+const selectedCompra = ref<Invoice | null>(null)
+
+const openModal = (compra: Invoice) => {
+  selectedCompra.value = compra
+  modalIsOpen.value = true
+}
+const closeModal = () => {
+  modalIsOpen.value = false
+  selectedCompra.value = null
+}
+
+// Modal para XML
+const showModal = ref(false)
+const xmlContent = ref('')
+const currentCompra = ref<any>(null)
+
+const showPdfModal = ref(false)
+const pdfEndpoint = 'http://192.168.18.21:8000/api/factiliza/pdf'
+const pdfParams = ref<any>(null)
+
+async function showXML(compra: any) {
+  currentCompra.value = compra
+  try {
+    const params = {
+      numRuc: compra.num_doc_identidad_proveedor,
+      tipoDocumento: compra.cod_tipo_cdp,
+      numSerieComprobante: compra.num_serie_cdp,
+      numDocumentoComprobante: compra.num_cdp,
+    }
+
+    const response = await api.get('http://192.168.18.21:8000/api/factiliza/xml', {
+      params,
+      responseType: 'text'
+    })
+
+    if (response.data && response.data.startsWith('<?xml')) {
+      xmlContent.value = response.data
+      showModal.value = true
+    } else {
+      alert('No se encontró un XML válido para esta compra')
+    }
+  } catch (error) {
+    console.error('Error al obtener XML:', error)
+    alert('Error al obtener el XML')
+  }
+}
+function closeModalXml() {
+  showModal.value = false
+  xmlContent.value = ''
+}
+// Para el PDF
+async function showPDF(compra: any) {
+  pdfParams.value = {
+    numRuc: compra.num_doc_identidad_proveedor,
+    tipoDocumento: compra.cod_tipo_cdp,
+    numSerieComprobante: compra.num_serie_cdp,
+    numDocumentoComprobante: compra.num_cdp
+  }
+  showPdfModal.value = true
+}
+function closePdfModal() {
+  showPdfModal.value = false
+  pdfParams.value = null
+}
 // Función para obtener la fecha formateada usando day.js
 function obtPerTributario() {
   return dayjs().format('YYYYMM'); // Formato YYYYMM
@@ -306,7 +376,7 @@ const totalGravadas: Ref<number> = ref(0);
 const perTributario: Ref<string> = ref('')
 const showDeleteModal: Ref<boolean> = ref(false)
 const invoiceDelete: Ref<Invoice | null> = ref(null)
-const archivo: Ref<string> = ref('')
+/* const archivo: Ref<string> = ref('') */
 const selectedCategory: Ref<string> = ref('')
 const selectedStatus: Ref<string> = ref('')
 const sortField: Ref<string> = ref('nom_razon_social_proveedor')
@@ -455,7 +525,7 @@ const filteredInvoices = computed<Invoice[]>(() => {
   }
 
   // Ordenar
-  result.sort((a: Invoice, b: Invoice) => {
+  /* result.sort((a: Invoice, b: Invoice) => {
     const modifier = sortDirection.value === 'desc' ? -1 : 1
     const getNestedValue = (obj: any, path: string) =>
       path.split('.').reduce((o, i) => o?.[i], obj)
@@ -471,7 +541,7 @@ const filteredInvoices = computed<Invoice[]>(() => {
     if (aValue < bValue) return -1 * modifier
     if (aValue > bValue) return 1 * modifier
     return 0
-  })
+  }) */
 
   return result
 })

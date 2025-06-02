@@ -41,7 +41,7 @@ export const useAuthStore = defineStore('auth', () => {
   /* const empresaId: Ref<number | null> = ref(null) */
 
   // Getters
-  const isAuthenticated = computed(() => !!token.value)
+  const isAuthenticated = ref(() => !!token.value)
   const currentUser = computed(() => user.value)
   const currentEmpresaId = computed(() => empresaId.value)
 

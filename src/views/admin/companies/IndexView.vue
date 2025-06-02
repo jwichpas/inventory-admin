@@ -1,18 +1,22 @@
-<!-- views/products/Index.vue -->
 <template>
-  <div>
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Productos</h1>
-      <router-link to="/products/create" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-        Nuevo Producto
-      </router-link>
-    </div>
-
-    <!-- Tabla de productos -->
-    <ProductsTable />
+  <div class="container mx-auto p-4">
+    <EmpresaForm :empresa-id="empresaId" @success="handleSuccess" @cancel="handleCancel" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+import EmpresaForm from '@/components/empresa/FormEmpresa.vue'
 
+const empresaId = ref<string | null>(null) // Para edición, o null para creación
+
+const handleSuccess = () => {
+  // Redirigir o mostrar mensaje de éxito
+  console.log('Empresa guardada con éxito')
+}
+
+const handleCancel = () => {
+  // Redirigir o cerrar el formulario
+  console.log('Operación cancelada')
+}
 </script>

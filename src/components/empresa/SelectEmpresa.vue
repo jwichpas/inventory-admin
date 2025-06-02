@@ -43,6 +43,22 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <!-- Tarjeta para crear nueva empresa -->
+          <div
+            class="border-2 border-dashed rounded-lg p-3 sm:p-4 cursor-pointer transition-all duration-200 hover:border-indigo-300 dark:hover:border-indigo-500 border-zinc-300 dark:border-zinc-600 flex flex-col items-center justify-center min-h-[120px]"
+            @click="nuevaEmpresa">
+            <div class="text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto text-indigo-500 dark:text-indigo-400"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              <h4 class="font-semibold text-indigo-600 dark:text-indigo-400 text-sm sm:text-base mt-2">Crear nueva
+                empresa</h4>
+              <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Registre una nueva organización</p>
+            </div>
+          </div>
+
+          <!-- Tarjetas de empresas existentes -->
           <div v-for="empresa in empresas" :key="empresa.empresa_id"
             class="border rounded-lg p-3 sm:p-4 cursor-pointer transition-all duration-200" :class="{
               'border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-900/30': empresaSeleccionada?.empresa_id === empresa.empresa_id,
@@ -73,7 +89,16 @@
           </button>
         </div>
       </div>
+      <!-- Botón flotante -->
+      <button @click="nuevaEmpresa"
+        class="fixed bottom-6 right-6 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        title="Crear nueva empresa">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+      </button>
     </div>
+
   </div>
 </template>
 
@@ -87,6 +112,13 @@ import { useAuthStore } from '@/stores/authStore'
 /* import { useEmpresaStore } from '@/stores/empresaStore' */
 /* const empresaStore = useEmpresaStore() */
 /* const empresaId = empresaStore.empresaSeleccionada?.empresa_id */
+const nuevaEmpresa = () => {
+  // Usando router para navegar
+  router.push('/admin/companies');
+
+  // O si prefieres abrir en nueva pestaña:
+  // window.open('/admin/companies', '_blank');
+};
 
 const router = useRouter()
 const empresaStore = useEmpresaStore()

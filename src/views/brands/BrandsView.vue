@@ -192,7 +192,8 @@ const router = useRouter();
 const fetchBrands = async () => {
   try {
     loading.value = true;
-    const response = await api.get('/brands'); // Ajusta el endpoint según tu API
+    const id_empresa = localStorage.getItem('empresaId');
+    const response = await api.get(`/lista-marcas/${id_empresa}`); // Ajusta el endpoint según tu API
     brands.value = response.data; // Asume que la respuesta es un array
   } catch (err) {
     error.value = 'Error al cargar marcas: ' + (err.message || 'Inténtalo de nuevo más tarde.');

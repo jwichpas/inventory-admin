@@ -69,6 +69,7 @@
               <p v-if="errors.category_id" class="mt-2 text-sm text-red-600">{{ errors.category_id }}</p>
             </div>
 
+
             <!-- Marca -->
             <div class="sm:col-span-3">
               <label for="brand" class="block text-sm font-medium text-gray-700">
@@ -182,7 +183,7 @@
                     :class="{ 'border-red-300': variantErrors[index]?.unit_id }">
                     <option value="">Seleccione unidad</option>
                     <option v-for="unit in units" :key="unit.id" :value="unit.id">
-                      {{ unit.name }} ({{ unit.symbol }})
+                      {{ unit.nombre_sunat }} ({{ unit.simbolo }})
                     </option>
                   </select>
                   <p v-if="variantErrors[index]?.unit_id" class="mt-1 text-xs text-red-600">
@@ -203,13 +204,14 @@
                           {{ attr.name }}
                         </option>
                       </select>
+
                       <select v-model="attribute.value_id"
                         class="flex-1 border border-gray-300 rounded-md shadow-sm py-1 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-xs"
                         :disabled="!attribute.attribute_id">
                         <option value="">Seleccione valor</option>
                         <option v-for="value in getAttributeValues(attribute.attribute_id)" :key="value.id"
                           :value="value.id">
-                          {{ value.value }}
+                          {{ value.valor }}
                         </option>
                       </select>
                       <button type="button" @click="removeVariantAttribute(index, attrIndex)"
@@ -217,6 +219,7 @@
                         <TrashIcon class="h-3 w-3" />
                       </button>
                     </div>
+
                     <button type="button" @click="addVariantAttribute(index)"
                       class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                       <PlusIcon class="mr-1 h-3 w-3" />
@@ -278,9 +281,18 @@
                 :class="{ 'border-red-300': errors.unit_id }">
                 <option value="">Seleccione unidad</option>
                 <option v-for="unit in units" :key="unit.id" :value="unit.id">
-                  {{ unit.name }} ({{ unit.symbol }})
+                  {{ unit.nombre_sunat }} ({{ unit.simbolo }})
                 </option>
               </select>
+              <button type="button" @click="openUnidadMedidaModal"
+                class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Nueva
+              </button>
               <p v-if="errors.unit_id" class="mt-2 text-sm text-red-600">{{ errors.unit_id }}</p>
             </div>
           </div>
@@ -337,11 +349,15 @@
         </div>
       </form>
     </div>
+
+    <!-- Modal para crear unidad de medida -->
+    <ModalCrearUnidadMedida :isOpen="showUnidadMedidaModal" @close="closeUnidadMedidaModal"
+      @created="handleUnidadMedidaCreated" />
   </div>
 </template>
 
-<script setup>
-import { ref, watch, computed, onMounted } from 'vue'
+<script setup lang="ts">
+import { ref, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/api/axios'
 import {
@@ -351,32 +367,62 @@ import {
   XMarkIcon
 } from '@heroicons/vue/24/outline'
 import ImageUploader from '@/components/ImageUploader.vue'
+import type {
+  Product,
+  Variant,
+  Category,
+  Brand,
+  Unit,
+  Attribute,
+  AttributeValue,
+  FormErrors,
+  VariantErrors
+} from '@/types/product'
+import ModalCrearUnidadMedida from '@/components/inventario/ModalCrearUnidadMedida.vue'
 
 const router = useRouter()
 
-// Estado del formulario
-const loading = ref(false)
-const errors = ref({})
-const variantErrors = ref([])
+// INICIO::UNIDAD DE MEDIDA
+const unidadesMedida = ref<any[]>([])
+const showUnidadMedidaModal = ref(false)
+// Manejar modal de unidad de medida
+function openUnidadMedidaModal() {
+  showUnidadMedidaModal.value = true
+}
+function closeUnidadMedidaModal() {
+  showUnidadMedidaModal.value = false
+  fetchUnits()
+}
+function handleUnidadMedidaCreated(newUnidad: any) {
+  unidadesMedida.value.push(newUnidad)
+  product.value.id_unidad_medida = newUnidad.id
+}
 
-// Datos del producto
-const product = ref({
+// Estado del formulario
+const loading = ref<boolean>(false)
+const errors = ref<FormErrors>({})
+const variantErrors = ref<VariantErrors>([])
+
+// Datos del producto con tipo Product
+const product = ref<Product>({
   name: '',
   code: '',
   description: '',
   category_id: '',
   brand_id: '',
-  product_type: 'simple', // 'simple' o 'variable'
+  product_type: 'simple',
   sku: '',
   price: '',
   stock: 0,
   unit_id: '',
   main_image: null,
-  images: []
+  images: [],
+  id_unidad_medida: 0,
+  category_ids: []
 })
 
-// Variantes (para producto variable)
-const variants = ref([
+// Variantes con tipo Variant[]
+const variants = ref<Variant[]>([
   {
     sku: '',
     sunat_code: '',
@@ -387,12 +433,12 @@ const variants = ref([
   }
 ])
 
-// Datos de selección (cargados desde API)
-const categories = ref([])
-const brands = ref([])
-const units = ref([])
-const availableAttributes = ref([])
-const attributeValues = ref([])
+// Datos de selección con tipos
+const categories = ref<Category[]>([])
+const brands = ref<Brand[]>([])
+const units = ref<Unit[]>([])
+const availableAttributes = ref<Attribute[]>([])
+const attributeValues = ref<AttributeValue[]>([])
 
 // Cargar datos iniciales
 onMounted(async () => {
@@ -407,50 +453,37 @@ onMounted(async () => {
     console.error('Error cargando datos:', error)
   }
 })
-
-// Métodos para cargar datos (simulados)
-const fetchCategories = async () => {
-  const response = await api.get('/categories')
-  console.log(response.data)
+const id_empresa = localStorage.getItem('empresaId')
+// Modifica las funciones para incluir tipos de retorno
+const fetchCategories = async (): Promise<Category[]> => {
+  const response = await api.get(`/lista-categorias/${id_empresa}`)
   return response.data
 }
 
-const fetchBrands = async () => {
-  const response = await api.get('/brands')
+const fetchBrands = async (): Promise<Brand[]> => {
+  const response = await api.get(`/lista-marcas/${id_empresa}`)
   return response.data
 }
 
-const fetchUnits = async () => {
-  return [
-    { id: 1, name: 'Unidad', symbol: 'UND' },
-    { id: 2, name: 'Kilogramo', symbol: 'KG' },
-    { id: 3, name: 'Litro', symbol: 'LT' }
-  ]
+const fetchUnits = async (): Promise<Unit[]> => {
+  const response = await api.get(`/unidad-medida`)
+  return response.data
 }
 
-const fetchAttributes = async () => {
-  return [
-    { id: 1, name: 'Color' },
-    { id: 2, name: 'Talla' },
-    { id: 3, name: 'Material' }
-  ]
+const fetchAttributes = async (): Promise<Attribute[]> => {
+  const response = await api.get(`/tipo-atributo?id_empresa=${id_empresa}`)
+  console.log(response.data.data.data)
+  return response.data.data.data
+
 }
 
-const fetchAttributeValues = async () => {
-  return [
-    { id: 1, attribute_id: 1, value: 'Rojo' },
-    { id: 2, attribute_id: 1, value: 'Azul' },
-    { id: 3, attribute_id: 1, value: 'Verde' },
-    { id: 4, attribute_id: 2, value: 'S' },
-    { id: 5, attribute_id: 2, value: 'M' },
-    { id: 6, attribute_id: 2, value: 'L' },
-    { id: 7, attribute_id: 3, value: 'Algodón' },
-    { id: 8, attribute_id: 3, value: 'Poliester' }
-  ]
+const fetchAttributeValues = async (): Promise<AttributeValue[]> => {
+  const response = await api.get(`/lista-atributo?id_empresa=${id_empresa}`)
+  return response.data.data.data
 }
 
-// Métodos para manejar variantes
-const addVariant = () => {
+// Añade tipos a los métodos
+const addVariant = (): void => {
   variants.value.push({
     sku: '',
     sunat_code: '',
@@ -462,41 +495,41 @@ const addVariant = () => {
   variantErrors.value.push({})
 }
 
-const removeVariant = (index) => {
+
+const removeVariant = (index: number): void => {
   if (variants.value.length > 1) {
     variants.value.splice(index, 1)
     variantErrors.value.splice(index, 1)
   }
 }
 
-const addVariantAttribute = (variantIndex) => {
+const addVariantAttribute = (variantIndex: number): void => {
   variants.value[variantIndex].attributes.push({
     attribute_id: '',
     value_id: ''
   })
 }
 
-const removeVariantAttribute = (variantIndex, attrIndex) => {
+const removeVariantAttribute = (variantIndex: number, attrIndex: number): void => {
   variants.value[variantIndex].attributes.splice(attrIndex, 1)
 }
 
 // Métodos para manejar imágenes
-const addImage = () => {
+const addImage = (): void => {
   product.value.images.push(null)
 }
 
-const removeImage = (index) => {
+const removeImage = (index: number): void => {
   product.value.images.splice(index, 1)
 }
 
-// Helper para obtener valores de atributos
-const getAttributeValues = (attributeId) => {
+const getAttributeValues = (attributeId: number): AttributeValue[] => {
   if (!attributeId) return []
-  return attributeValues.value.filter(v => v.attribute_id === attributeId)
+  return attributeValues.value.filter(v => v.id_tipo === attributeId)
 }
 
 // Validación del formulario
-const validateForm = () => {
+const validateForm = (): boolean => {
   let valid = true
   errors.value = {}
   variantErrors.value = []
@@ -563,7 +596,7 @@ const validateForm = () => {
 }
 
 // Enviar formulario
-const submitForm = async () => {
+const submitForm = async (): Promise<void> => {
   if (!validateForm()) return;
   const uploadProgress = ref(0);
   loading.value = true;
@@ -573,7 +606,7 @@ const submitForm = async () => {
   try {
     // Obtener el token de autenticación y el ID de la empresa
     const token = localStorage.getItem('token');
-    const empresaId = localStorage.getItem('empresa_id') || router.currentRoute.value.params.empresa_id;
+    const empresaId = localStorage.getItem('empresaId') || router.currentRoute.value.params.id_empresa;
 
     if (!empresaId) {
       throw new Error('No se ha seleccionado una empresa');
@@ -583,12 +616,12 @@ const submitForm = async () => {
     const formData = new FormData();
 
     // Datos básicos del producto
-    formData.append('empresa_id', empresaId);
+    formData.append('id_empresa', empresaId);
     formData.append('name', product.value.name);
-    formData.append('code', product.value.code);
+    formData.append('codigo', product.value.code);
     formData.append('description', product.value.description);
     formData.append('category_id', product.value.category_id);
-    formData.append('brand_id', product.value.brand_id);
+    formData.append('id_brand', product.value.brand_id);
     formData.append('product_type', product.value.product_type);
 
     // Si es producto simple
@@ -645,7 +678,7 @@ const submitForm = async () => {
     };
 
     // Enviar a la API
-    const response = await axios.post('/api/products', formData, config);
+    const response = await api.post('/nuevo-producto', formData, config);
 
     // Mostrar mensaje de éxito y redirigir
     if (response.data.success) {
@@ -699,7 +732,7 @@ const submitForm = async () => {
     loading.value = false;
   }
 };
-const generateSku = () => {
+const generateSku = (): void => {
   if (product.value.name && product.value.code) {
     const initials = product.value.name.split(' ')
       .map(word => word[0])

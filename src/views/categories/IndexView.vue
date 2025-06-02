@@ -193,7 +193,8 @@ const router = useRouter();
 const fetchCategories = async () => {
   try {
     loading.value = true;
-    const response = await api.get('/categories'); // Ajusta el endpoint según tu API
+    const id_empresa = localStorage.getItem('empresaId');
+    const response = await api.get(`/lista-categorias/${id_empresa}`); // Ajusta el endpoint según tu API
     categories.value = response.data; // Asume que la respuesta es un array
   } catch (err) {
     error.value = 'Error al cargar categorías: ' + (err.message || 'Inténtalo de nuevo más tarde.');

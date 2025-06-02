@@ -107,14 +107,14 @@
             <div
               class="bg-white dark:bg-zinc-950 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6">
               <router-view v-slot="{ Component }">
-                <div class="space-y-6">
-                  <transition name="fade" mode="out-in" enter-active-class="transition-opacity duration-300 ease-out"
-                    enter-from-class="opacity-0" enter-to-class="opacity-100"
-                    leave-active-class="transition-opacity duration-200 ease-in" leave-from-class="opacity-100"
-                    leave-to-class="opacity-0">
+                <transition name="fade" mode="out-in" enter-active-class="transition-opacity duration-300 ease-out"
+                  enter-from-class="opacity-0" enter-to-class="opacity-100"
+                  leave-active-class="transition-opacity duration-200 ease-in" leave-from-class="opacity-100"
+                  leave-to-class="opacity-0">
+                  <div class="space-y-6">
                     <component :is="Component" />
-                  </transition>
-                </div>
+                  </div>
+                </transition>
               </router-view>
             </div>
           </div>
@@ -125,12 +125,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   Bars3Icon,
   BellIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  MoonIcon,
+  SunIcon
 } from '@heroicons/vue/24/outline'
 import Sidebar from '@/components/SideBarView.vue'
 
@@ -142,75 +144,55 @@ interface Breadcrumb {
 }
 
 const sidebar = ref<InstanceType<typeof Sidebar> | null>(null)
-const showUserMenu = ref<boolean>(false)
+const showUserMenu = ref(false)
 const route = useRoute()
-const mobileSidebarOpen = ref<boolean>(false)
+const mobileSidebarOpen = ref(false)
 
+// Modo oscuro (puedes ajustar según tu lógica)
+const darkMode = ref(false)
+const toggleDarkMode = () => {
+  darkMode.value = !darkMode.value
+}
 
-
-// Datos de ejemplo del usuario
+// Usuario
 const userName = 'John Doe'
-const userInitials = computed(() => {
-  return userName.split(' ').map(n => n[0]).join('')
-})
+const userInitials = computed(() => userName.split(' ').map(n => n[0]).join(''))
 
+// Breadcrumbs (a implementar si lo necesitas)
 const breadcrumbs = computed<Breadcrumb[]>(() => {
-  // Implementación real de breadcrumbs
   return []
 })
-
 
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
 }
 
+const closeUserMenu = () => {
+  showUserMenu.value = false
+}
+
 const logout = () => {
-  // Lógica para cerrar sesión
   console.log('Cerrando sesión...')
 }
 
+// Referencia al menú para detectar clics fuera
+const userMenuRef = ref<HTMLElement | null>(null)
+
+const handleClickOutside = (event: MouseEvent) => {
+  if (
+    showUserMenu.value &&
+    userMenuRef.value &&
+    !userMenuRef.value.contains(event.target as Node)
+  ) {
+    closeUserMenu()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
-<style>
-/* Efecto de transición suave para el contenido */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-/* Scrollbar personalizada */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-.dark ::-webkit-scrollbar-track {
-  background: #374151;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #4b5563;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
-}
-</style>

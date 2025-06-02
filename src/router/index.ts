@@ -6,22 +6,32 @@ import RegisterView from '@/views/auth/RegisterView.vue'
 import IndexUsers from '@/views/admin/users/IndexView.vue'
 import IndexSettings from '@/views/admin/settings/IndexView.vue'
 import IndexCompanies from '@/views/admin/companies/IndexView.vue'
-import ProductIndexView from '@/views/products/IndexView.vue'
-import ProductCreateView from '@/views/products/CreateView.vue'
+/* import ProductIndexView from '@/views/products/IndexView.vue' */
+/* import ProductCreateView from '@/views/products/CreateView.vue' */
 import CategoryIndexView from '@/views/categories/IndexView.vue'
 import CategoryCreateEditView from '@/views/categories/CreateEditView.vue'
 import BrandsView from '@/views/brands/BrandsView.vue'
 import BrandsCreateView from '@/views/brands/BrandsCreateView.vue'
 import SireComprasView from '@/views/sire/ListComprasView.vue'
-import SelectEmpresa from '@/components/SelectEmpresa.vue'
-
+import SelectEmpresa from '@/components/empresa/SelectEmpresa.vue'
+import Empresas from '@/views/admin/companies/IndexView.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import { useAuthStore } from '@/stores/authStore'
+import AsingarEmpresaView from '@/views/admin/companies/UserCompanyAssignment.vue'
+import AtributosManager from '@/views/products/AtributosManager.vue'
 //Layouts
 import AdminLayoutView from '@/layouts/MainLayoutView.vue'
-import AuthLayout from '@/layouts/AuthLayout.vue'
+/* import AuthLayout from '@/layouts/AuthLayout.vue' */
+import ProductListView from '@/views/products/ProductListView.vue'
+import ProductCreateView from '@/views/products/ProductCreateView.vue'
+import ProductEditView from '@/views/products/ProductEditView.vue'
 
+import SubCategoryView from '@/views/products/SubCategoryView.vue'
 import HomeView from '@/views/HomeView.vue'
+import ListComprasItems from '@/views/sire/ListComprasItems.vue'
+import ComprasDetalle from '@/views/sire/ComprasDetalle.vue'
+import ListVentasView from '@/views/sire/ListVentasView.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -57,16 +67,22 @@ const router = createRouter({
           meta: { title: 'Configuración del Sistema' },
         },
         {
-          path: 'products',
+          path: '/products',
           name: 'products',
-          component: ProductIndexView,
+          component: ProductListView,
           meta: { title: 'Productos' },
         },
         {
           path: '/products/create',
-          name: 'products.create',
+          name: 'product-create',
           component: ProductCreateView,
           meta: { title: 'Nuevo Producto' },
+        },
+        {
+          path: '/product/:id/edit',
+          name: 'product-edit',
+          component: ProductEditView,
+          props: true,
         },
         {
           path: '/categories',
@@ -105,6 +121,18 @@ const router = createRouter({
           meta: { title: 'Editar Marca' },
         },
         {
+          path: '/atributos',
+          name: 'atributos',
+          component: AtributosManager,
+          meta: { title: 'Atributos' },
+        },
+        {
+          path: '/sire/ventas',
+          name: 'sire.ventas',
+          component: ListVentasView,
+          meta: { title: 'Ventas SIRE' },
+        },
+        {
           path: '/sire/compras',
           name: 'sire.compras',
           component: SireComprasView,
@@ -123,6 +151,18 @@ const router = createRouter({
           meta: { title: 'Editar Compra' },
         },
         {
+          path: '/sire/compras-detalle',
+          name: 'sire.compras-detalle',
+          component: ListComprasItems,
+          meta: { title: 'Detalle Compras SIRE' },
+        },
+        {
+          path: '/sire/compras-detalles',
+          name: 'sire.compras-detalles',
+          component: ComprasDetalle,
+          meta: { title: 'Detalle Compras SIRE' },
+        },
+        {
           path: '/select-empresa',
           name: 'select-empresa',
           component: SelectEmpresa,
@@ -132,6 +172,35 @@ const router = createRouter({
           path: '/dashboard',
           name: 'dashboard',
           component: DashboardView,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/admin/companies',
+          name: 'admin.companies.list',
+          component: Empresas,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/admin/companies/create',
+          name: 'admin.companies.create',
+          component: Empresas,
+        },
+        {
+          path: '/admin/asignar-empresa',
+          name: 'admin.asignar-empresa',
+          component: AsingarEmpresaView,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/admin/users',
+          name: 'admin.users.list',
+          component: IndexUsers,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/products/subcategory',
+          name: 'products.subcategory',
+          component: SubCategoryView,
           meta: { requiresAuth: true },
         },
       ],
