@@ -32,6 +32,13 @@ import ListComprasItems from '@/views/sire/ListComprasItems.vue'
 import ComprasDetalle from '@/views/sire/ComprasDetalle.vue'
 import ListVentasView from '@/views/sire/ListVentasView.vue'
 
+//Costeo por producto
+import CosteoFleteView from '@/views/inventario/CosteoFleteView.vue'
+import InvoiceDetailView from '@/views/inventario/InvoiceDetailView.vue'
+/* import FreightAssignment from '@/views/FreightAssignment.vue' */
+import PurchaseList from '@/views/PurchaseList.vue'
+import FletesIndex from '@/views/freight/FreightAssignmentView.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -181,6 +188,12 @@ const router = createRouter({
           meta: { requiresAuth: true },
         },
         {
+          path: '/inventory/costeo',
+          name: 'inventory-costeo',
+          component: CosteoFleteView,
+          meta: { requiresAuth: true },
+        },
+        {
           path: '/admin/companies/create',
           name: 'admin.companies.create',
           component: Empresas,
@@ -203,16 +216,55 @@ const router = createRouter({
           component: SubCategoryView,
           meta: { requiresAuth: true },
         },
+        {
+          path: '/sire/compras-detalles/:id',
+          name: 'inventario.invoice.detail',
+          component: InvoiceDetailView,
+          meta: { requiresAuth: true },
+          props: true,
+        },
+        {
+          path: '/asignacion-fletes',
+          name: 'freight.assignment',
+          component: FletesIndex,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/purchase-list',
+          name: 'purchase.list',
+          component: PurchaseList,
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/tipo-documento',
+          name: 'tipo-documento',
+          component: () => import('@/views/admin/TipoDocumentoCrudView.vue'),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/inventario/lista-productos',
+          name: 'inventario.productos',
+          component: () => import('@/views/inventario/ProductListView.vue'),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: '/inventario/lista-productos/:id',
+          name: 'inventario.producto.detalle',
+          component: () => import('@/views/inventario/ProductDetailView.vue'),
+          meta: { requiresAuth: true },
+          props: true,
+        },
+        {
+          path: '/compras/fletes',
+          name: 'compras.fletes',
+          component: () => import('@/views/sire/ListComprasClaView.vue'),
+          meta: { requiresAuth: true },
+          props: true,
+        },
       ],
     },
-
     { path: '/register', component: RegisterView },
     { path: '/login', component: LoginView },
-    // Ruta de redirección para rutas no encontradas
-    /* {
-      path: '/:pathMatch(.*)*',
-      redirect: '/',
-    }, */
   ],
 })
 

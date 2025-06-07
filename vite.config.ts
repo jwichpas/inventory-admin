@@ -31,6 +31,9 @@ export default defineConfig({
           800: '#1e293b',
           700: '#334155',
         },
+        fontFamily: {
+          inter: ['Inter', 'sans-serif'],
+        },
       },
     },
   },
@@ -71,7 +74,6 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/api': {
-
         target: 'https://mi-api-laravel-production.up.railway.app/',
         changeOrigin: true,
       },

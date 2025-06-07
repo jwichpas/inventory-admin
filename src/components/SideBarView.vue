@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Mobile menu button -->
-    <div class="lg:hidden fixed top-4 left-4 z-50">
+    <div class="lg:hidden fixed top-4 left-4 z-50" v-if="!mobileMenuOpen">
       <button @click="mobileMenuOpen = !mobileMenuOpen"
         class="p-2 rounded-md text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 focus:outline-none transition-colors">
         <Bars3Icon class="h-6 w-6 text-zinc-600 dark:text-zinc-300" />
@@ -27,29 +27,44 @@
 
       <!-- Logo/Sidebar Header -->
       <div
-        class="flex items-center justify-between h-16 px-4 dark:text-zinc-500 bg-indigo-600 dark:bg-zinc-950 shrink-0">
-        <transition name="fade" mode="out-in">
-          <router-link to="/" v-if="!minimized" class="flex items-center space-x-2">
-            <span class="text-white font-bold text-xl whitespace-nowrap">
-              Contabilidad IA
-            </span>
-          </router-link>
-          <router-link to="/" v-else class="flex items-center justify-center w-full">
-            <span class="text-white font-bold text-xl">IA</span>
-          </router-link>
-        </transition>
-
-        <!-- Minimize Button (Desktop) -->
+        class="kt-sidebar-header hidden lg:flex items-center relative justify-between px-3 lg:px-6 shrink-0 h-16 bg-zinc-50 dark:bg-zinc-950 border-b border-zinc-200 dark:border-zinc-700"
+        id="sidebar_header">
+        <!-- Logo claro -->
+        <a class="dark:hidden flex items-center" href="/">
+          <img v-if="!minimized" class="default-logo min-h-[22px] max-w-none"
+            src="../assets/images/app/default-logo.svg" alt="Logo" />
+          <img v-else class="small-logo min-h-[22px] max-w-none" src="../assets/images/app/mini-logo.svg"
+            alt="Mini Logo" />
+        </a>
+        <!-- Logo dark -->
+        <a class="hidden dark:flex items-center" href="/">
+          <img v-if="!minimized" class="default-logo min-h-[22px] max-w-none"
+            src="../assets/images/app/default-logo-dark.svg" alt="Logo Dark" />
+          <img v-else class="small-logo min-h-[22px] max-w-none" src="../assets/images/app/mini-logo.svg"
+            alt="Mini Logo" />
+        </a>
+        <!-- Botón minimizar -->
         <button @click="toggleMinimize"
-          class="hidden lg:block p-1 rounded-md text-white hover:bg-indigo-500 focus:outline-none transition-colors"
+          class="kt-btn kt-btn-outline kt-btn-icon size-[30px] absolute start-full top-2/4 -translate-x-2/4 -translate-y-2/4 rtl:translate-x-2/4 active"
           :title="minimized ? 'Expandir' : 'Minimizar'">
           <ChevronDoubleLeftIcon v-if="!minimized" class="h-5 w-5" />
           <ChevronDoubleRightIcon v-else class="h-5 w-5" />
         </button>
+      </div>
 
-        <!-- Close Button (Mobile) -->
+      <!-- Logo/Sidebar Header móvil -->
+      <div
+        class="flex lg:hidden items-center justify-between h-16 px-4 dark:text-zinc-500 bg-zinc-50 dark:bg-zinc-950 shrink-0">
+        <router-link to="/" class="flex items-center">
+          <img v-if="!minimized && !isDark" class="default-logo min-h-[22px] max-w-none"
+            src="../assets/images/app/default-logo.svg" alt="Logo" />
+          <img v-else-if="!minimized && isDark" class="default-logo min-h-[22px] max-w-none"
+            src="../assets/images/app/default-logo-dark.svg" alt="Logo Dark" />
+          <img v-else class="small-logo min-h-[22px] max-w-none" src="../assets/images/app/mini-logo.svg"
+            alt="Mini Logo" />
+        </router-link>
         <button @click="mobileMenuOpen = false"
-          class="lg:hidden p-1 rounded-md text-white hover:bg-indigo-500 focus:outline-none transition-colors">
+          class="lg:hidden p-1 rounded-md text-zinc-700 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-700 focus:outline-none transition-colors">
           <XMarkIcon class="h-5 w-5" />
         </button>
       </div>
@@ -65,8 +80,8 @@
             }">
             <div class="flex items-center">
               <component :is="item.icon" class="flex-shrink-0 h-5 w-5 mr-3 transition-colors" :class="{
-                'text-indigo-600 dark:text-indigo-400': openSubmenus[item.name],
-                'text-zinc-500 group-hover:text-indigo-600 dark:text-zinc-400 dark:group-hover:text-indigo-400': !openSubmenus[item.name]
+                'text-blue-700 dark:text-blue-400': openSubmenus[item.name],
+                'text-zinc-500 group-hover:text-blue-700 dark:text-zinc-400 dark:group-hover:text-blue-400': !openSubmenus[item.name]
               }" />
               <transition name="slide-fade">
                 <span v-if="!minimized">{{ item.name }}</span>
@@ -79,14 +94,14 @@
           <router-link v-else :to="item.to" custom v-slot="{ href, navigate, isActive }">
             <a :href="href" @click="navigate"
               class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors" :class="{
-                'bg-indigo-50 text-indigo-600 dark:bg-zinc-700 dark:text-indigo-400': isActive,
+                'bg-blue-50 text-blue-700 dark:bg-zinc-700 dark:text-blue-400': isActive,
                 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !isActive,
                 'justify-center': minimized
               }">
               <component :is="item.icon" class="flex-shrink-0 h-5 w-5" :class="{
                 'mr-3': !minimized,
-                'text-indigo-600 dark:text-indigo-400': isActive,
-                'text-zinc-500 group-hover:text-indigo-600 dark:text-zinc-400 dark:group-hover:text-indigo-400': !isActive
+                'text-blue-700 dark:text-blue-400': isActive,
+                'text-zinc-500 group-hover:text-blue-700 dark:text-zinc-400 dark:group-hover:text-blue-400': !isActive
               }" />
               <transition name="slide-fade">
                 <span v-if="!minimized">{{ item.name }}</span>
@@ -103,7 +118,7 @@
               <router-link v-for="child in item.children" :key="child.name" :to="child.to" custom
                 v-slot="{ href, navigate, isActive }">
                 <a :href="href" @click="navigate" class="block px-3 py-2 text-sm rounded-lg transition-colors" :class="{
-                  'bg-indigo-50 text-indigo-600 dark:bg-zinc-700 dark:text-indigo-400': isActive,
+                  'bg-blue-50 text-blue-700 dark:bg-zinc-700 dark:text-blue-400': isActive,
                   'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !isActive
                 }">
                   {{ child.name }}
@@ -126,14 +141,14 @@
               v-slot="{ href, navigate, isActive }">
               <a :href="href" @click="navigate"
                 class="group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors" :class="{
-                  'bg-indigo-50 text-indigo-600 dark:bg-zinc-700 dark:text-indigo-400': isActive,
+                  'bg-blue-50 text-blue-700 dark:bg-zinc-700 dark:text-blue-400': isActive,
                   'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700': !isActive,
                   'justify-center': minimized
                 }">
                 <component :is="item.icon" class="flex-shrink-0 h-5 w-5" :class="{
                   'mr-3': !minimized,
-                  'text-indigo-600 dark:text-indigo-400': isActive,
-                  'text-zinc-500 group-hover:text-indigo-600 dark:text-zinc-400 dark:group-hover:text-indigo-400': !isActive
+                  'text-blue-700 dark:text-blue-400': isActive,
+                  'text-zinc-500 group-hover:text-blue-700 dark:text-zinc-400 dark:group-hover:text-blue-400': !isActive
                 }" />
                 <transition name="slide-fade">
                   <span v-if="!minimized">{{ item.name }}</span>
@@ -150,8 +165,8 @@
         <button @click="toggleDarkMode"
           class="flex items-center justify-between w-full p-2 rounded-lg transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-700">
           <div class="flex items-center">
-            <MoonIcon v-if="isDark" class="h-5 w-5 text-indigo-400 mr-2" />
-            <SunIcon v-else class="h-5 w-5 text-indigo-600 mr-2" />
+            <MoonIcon v-if="isDark" class="h-5 w-5 text-blue-400 mr-2" />
+            <SunIcon v-else class="h-5 w-5 text-blue-700 mr-2" />
             <transition name="slide-fade">
               <span v-if="!minimized" class="text-sm text-zinc-700 dark:text-zinc-300">
                 {{ isDark ? 'Modo oscuro' : 'Modo claro' }}
@@ -161,7 +176,7 @@
           <div v-if="!minimized"
             class="relative inline-flex items-center h-5 rounded-full w-10 transition-colors duration-200 ease-in-out"
             :class="{
-              'bg-indigo-600': !isDark,
+              'bg-blue-700': !isDark,
               'bg-zinc-600': isDark
             }">
             <span :class="{

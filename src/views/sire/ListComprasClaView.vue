@@ -65,20 +65,20 @@
               Número</th>
             <th class="px-3 py-2 text-left font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
               Moneda</th>
-            <th class="px-3 py-2 text-right font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
-              Gravada S/</th>
-            <th class="px-3 py-2 text-right font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">IGV
-              S/</th>
-            <th class="px-3 py-2 text-right font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
-              Total S/</th>
+            <th class="px-3 py-2 text-left font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+              Tipo de Compra</th>
+            <th class="px-3 py-2 text-left font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+              Tipo de Proveedor</th>
             <th class="px-3 py-2 text-left font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
               Estado</th>
+            <th class="px-3 py-2 text-right font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+              Total S/</th>
             <th class="px-3 py-2 text-right font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
               Acciones</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(invoice, idx) in invoices" :key="invoice.id"
+          <tr v-for="(invoice, index) in invoices" :key="invoice.id"
             class="even:bg-zinc-50 hover:bg-zinc-100/80 transition-colors group border-b border-zinc-200 last:border-b-0 dark:even:bg-zinc-900/70 dark:hover:bg-zinc-800/80 dark:border-zinc-800">
             <td
               class="px-3 py-1 whitespace-nowrap truncate max-w-md font-semibold text-zinc-700 dark:text-zinc-200 flex items-center gap-2">
@@ -109,18 +109,47 @@
                 {{ invoice.cod_moneda }}
               </span>
             </td>
-            <td class="px-3 py-1 whitespace-nowrap text-right text-zinc-800 dark:text-zinc-100">{{
-              formatCurrency(invoice.montos?.mto_bi_gravada_dg) }}</td>
-            <td class="px-3 py-1 whitespace-nowrap text-right text-zinc-800 dark:text-zinc-100">{{
-              formatCurrency(invoice.montos?.mto_igv_ipm_dg) }}</td>
-            <td class="px-3 py-1 whitespace-nowrap text-right font-bold text-zinc-800 dark:text-zinc-100">{{
-              formatCurrency(invoice.mto_total_cp) }}</td>
+            <td class="px-3 py-1 whitespace-nowrap text-zinc-600 dark:text-zinc-400">{{ invoice.des_tipo_cdp || '-' }}
+            </td>
+            <td class="px-3 py-1 whitespace-nowrap text-zinc-600 dark:text-zinc-400">
+              <template v-if="invoice.clasificaciones && invoice.clasificaciones.length > 0">
+                {{ invoice.clasificaciones[0].tipo_proveedor }}
+              </template>
+              <template v-else>
+                <Listbox v-model="tipoProveedorSeleccionado[invoice.id]"
+                  @update:modelValue="(val) => guardarTipoProveedor(invoice.id, val, index)">
+                  <div class="relative">
+                    <ListboxButton
+                      class="w-36 px-2 py-1 border border-zinc-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 text-xs flex items-center justify-between">
+                      <span>{{tipoProveedorSeleccionado[invoice.id] ? tipoProveedorOptions.find(opt => opt.value ===
+                        tipoProveedorSeleccionado[invoice.id])?.label : 'Seleccionar'}}</span>
+                      <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </ListboxButton>
+                    <ListboxOptions
+                      class="absolute z-50 mt-1 w-36 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded shadow-lg">
+                      <ListboxOption v-for="option in tipoProveedorOptions" :key="option.value" :value="option.value"
+                        class="cursor-pointer select-none px-3 py-2 hover:bg-blue-100 dark:hover:bg-zinc-800">
+                        {{ option.label }}
+                      </ListboxOption>
+                    </ListboxOptions>
+                  </div>
+                </Listbox>
+                <span v-if="savingTipoProveedor[invoice.id]" class="ml-2 text-xs text-blue-500">Guardando...</span>
+              </template>
+            </td>
+
             <td class="px-3 py-1 whitespace-nowrap">
-              <span :class="getStatusColor(invoice.des_estado_comprobante)"
+              <span
+                :class="getStatusColor(invoice.clasificaciones && invoice.clasificaciones.length > 0 ? invoice.clasificaciones[0].estado : invoice.des_estado_comprobante)"
                 class="px-2 py-0.5 inline-flex text-xs leading-5 font-bold rounded-full">
-                {{ invoice.des_estado_comprobante }}
+                {{ invoice.clasificaciones && invoice.clasificaciones.length > 0 ? invoice.clasificaciones[0].estado :
+                  invoice.des_estado_comprobante }}
               </span>
             </td>
+            <td class="px-3 py-1 whitespace-nowrap text-right font-bold text-zinc-800 dark:text-zinc-100">{{
+              formatCurrency(invoice.mto_total_cp) }}</td>
             <td class="px-3 py-1 whitespace-nowrap text-right">
               <div class="flex items-center gap-2 justify-end">
                 <button @click="openModal(invoice)"
@@ -142,14 +171,11 @@
         </tbody>
         <tfoot class="bg-zinc-100 dark:bg-zinc-900">
           <tr>
-            <td colspan="6" class="px-3 py-2 text-right font-semibold text-zinc-600 dark:text-zinc-400">Total:</td>
-            <td class="px-3 py-2 text-right font-extrabold text-zinc-800 dark:text-zinc-100">{{
-              formatCurrency(totalGravadas) }}</td>
-            <td class="px-3 py-2 text-right font-extrabold text-zinc-800 dark:text-zinc-100">{{ formatCurrency(totalIgv)
-            }}</td>
+            <td colspan="7" class="px-3 py-2 text-right font-semibold text-zinc-600 dark:text-zinc-400">Total:</td>
+            <td colspan="2"></td>
             <td class="px-3 py-2 text-right font-extrabold text-zinc-800 dark:text-zinc-100">{{
               formatCurrency(totalGeneral) }}</td>
-            <td colspan="2"></td>
+            <td colspan="1"></td>
           </tr>
         </tfoot>
       </table>
@@ -206,7 +232,7 @@
     </div>
 
     <!-- Modales -->
-    <DetailModal :isOpen="modalIsOpen" :compra="selectedCompra" @close="closeModal" />
+    <DetailModal :isOpen="modalIsOpen" :compra="(selectedCompra as any)" @close="closeModal" />
     <ModalXMLViewer :isOpen="showModal" :xmlContent="xmlContent" @close="closeModalXml" />
     <ModalPDFViewer :isOpen="showPdfModal" :pdfEndpoint="pdfEndpoint" :params="pdfParams || {}"
       @close="closePdfModal" />
@@ -215,6 +241,14 @@
       ¿Estás seguro que deseas eliminar el producto "{{ invoiceDelete?.nom_razon_social_proveedor }}"? Esta acción
       no se puede deshacer.
     </ConfirmationModal>
+
+    <template v-if="toast.visible">
+      <div
+        class="fixed top-6 right-6 z-50 bg-green-600 text-white px-4 py-2 rounded shadow-lg flex items-center gap-2 animate-fade-in">
+        <span>Tipo de proveedor guardado correctamente</span>
+        <button @click="toast.visible = false" class="ml-2 text-white hover:text-zinc-200">&times;</button>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -229,10 +263,12 @@ import {
 import FiltroPeriodo from '@/components/FiltroPeriodo.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import api from '@/api/axios';
-import type { Invoice, Pagination } from '@/types/sireCompras';
+import type { Invoice } from '@/types/sireCompras';
 import DetailModal from '@/components/sire/ComprasItems.vue'
 import ModalXMLViewer from '@/components/sire/ModalXMLViewer.vue'
 import ModalPDFViewer from '@/components/sire/ModalPDFViewer.vue'
+import { ref as vueRef } from 'vue'
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue'
 
 const modalIsOpen = ref(false)
 const selectedCompra = ref<Invoice | null>(null)
@@ -309,7 +345,44 @@ const pagination = ref({
   to: 0
 })
 
-async function fetchInvoices() {
+const tipoProveedorOptions = [
+  { value: 'mercaderia', label: 'Mercadería' },
+  { value: 'flete', label: 'Flete' },
+  { value: 'gastos_ventas', label: 'Gastos de Ventas' },
+  { value: 'gastos_administracion', label: 'Gastos de Administración' }
+]
+
+// Estado de loading por fila
+const savingTipoProveedor = vueRef<{ [key: string]: boolean }>({})
+
+// En el script setup, agregar estado temporal para selección por fila:
+const tipoProveedorSeleccionado = vueRef<{ [key: string]: string }>({})
+
+const toast = vueRef({ visible: false })
+
+function showToast() {
+  toast.value.visible = true
+  setTimeout(() => { toast.value.visible = false }, 2500)
+}
+
+async function guardarTipoProveedor(compraId: string, tipo: string, idx: number) {
+  savingTipoProveedor.value[compraId] = true
+  try {
+    await api.post(`/compras/${compraId}/clasificaciones`, {
+      compra_id: compraId,
+      tipo_proveedor: tipo
+    })
+    // Actualizar localmente la fila
+    invoices.value[idx].clasificaciones = [{ tipo_proveedor: tipo, estado: 'pendiente' }]
+    showToast()
+  } catch {
+    alert('Error al guardar el tipo de proveedor')
+  } finally {
+    savingTipoProveedor.value[compraId] = false
+  }
+}
+
+const fetchInvoices = async () => {
   try {
     loading.value = true
     error.value = null
@@ -503,5 +576,21 @@ function closePdfModal() {
 </script>
 
 <style scoped>
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease;
+}
+
 /* Estilos adicionales si son necesarios */
 </style>

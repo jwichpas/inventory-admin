@@ -36,7 +36,7 @@ interface Consulta {
 
 function obtenerPerPeriodo(): string {
   // Ejemplo: "202310" para octubre de 2023 // return moment().format('YYYYMM')
-  /* return '202504' // Ejemplo: "202310" para octubre de 2023 */
+  //return '202505' // Ejemplo: "202310" para octubre de 2023
   return dayjs().format('YYYYMM') // Usando dayjs para formatear la fecha actual
 }
 
@@ -250,8 +250,9 @@ export async function obtenerVentas(periodo?: string): Promise<void> {
 
     const response = await api.post('/ventas', datosVentas)
     const resumenVentas = await api.get('/resumen-ventas/calcular')
-    console.log('Datos guardados en el backend:', response.data)
-    console.log('Datos guardados en el backend:', resumenVentas.data)
+    console.log('Ventas obtenidos:', totalRegistros)
+    console.log('Ventas guardados en el backend :', response.data)
+    console.log('Resumen de ventas guardados en el backend:', resumenVentas.data)
 
     // Si hay más de una página, obtener las páginas restantes
     if (totalPaginas > 1) {
@@ -336,7 +337,7 @@ export async function getReporteCumpRVE(): Promise<any> {
 
     // Enviar los datos al backend
     const totalRegistro = datosRepCumple
-    console.log('Total de registros:', totalRegistro)
+    console.log('Reporte de cumplimiento:', totalRegistro)
 
     /* Resumen */
     const response = await api.post(`/reportecumplimiento/resumen`, datosRepCumple)
@@ -471,7 +472,7 @@ export function iniciarCicloPrincipal(): void {
   // Calcular la hora de inicio (12:30 PM)
   const ahora: Date = new Date()
   const horaInicio: Date = new Date(ahora)
-  horaInicio.setHours(9, 0, 0, 0) // Fijar la hora de inicio a las 09:00 AM
+  horaInicio.setHours(9, 54, 0, 0) // Fijar la hora de inicio a las 09:00 AM
 
   // Si ya pasaron las 10:25 AM, ajustar al siguiente ciclo (3 horas después)
   if (ahora > horaInicio) {

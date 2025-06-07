@@ -41,7 +41,7 @@ export const useAuthStore = defineStore('auth', () => {
   /* const empresaId: Ref<number | null> = ref(null) */
 
   // Getters
-  const isAuthenticated = ref(() => !!token.value)
+  const isAuthenticated = computed(() => !!token.value && !!user.value)
   const currentUser = computed(() => user.value)
   const currentEmpresaId = computed(() => empresaId.value)
 
@@ -122,7 +122,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
   const logout = async () => {
     try {
-      await axios.post('/api/logout')
+      await api.post('/auth/logout')
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       localStorage.removeItem('empresaId')
@@ -138,7 +138,6 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await api.get('/user')
       user.value = response.data
       empresaId.value = response.data.id_empresa
-      isAuthenticated.value = true
     } catch (err) {
       resetAuthState()
     }

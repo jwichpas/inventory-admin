@@ -7,7 +7,7 @@
       <!-- Estado de carga -->
       <div v-if="isLoading" class="flex flex-col items-center justify-center py-8 sm:py-12">
         <div
-          class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-t-2 border-b-2 border-indigo-500 dark:border-indigo-400 mb-3 sm:mb-4">
+          class="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-t-2 border-b-2 border-blue-500 dark:border-blue-400 mb-3 sm:mb-4">
         </div>
         <p class="text-zinc-600 dark:text-zinc-300 text-base sm:text-lg">Cargando empresas...</p>
       </div>
@@ -19,7 +19,7 @@
           <p class="font-medium text-sm sm:text-base">{{ error }}</p>
         </div>
         <button @click="fetchEmpresas"
-          class="px-4 py-2 bg-indigo-600 dark:bg-indigo-500 text-white rounded-md hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-800 text-sm sm:text-base">
+          class="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-800 text-sm sm:text-base">
           Reintentar
         </button>
       </div>
@@ -45,14 +45,14 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <!-- Tarjeta para crear nueva empresa -->
           <div
-            class="border-2 border-dashed rounded-lg p-3 sm:p-4 cursor-pointer transition-all duration-200 hover:border-indigo-300 dark:hover:border-indigo-500 border-zinc-300 dark:border-zinc-600 flex flex-col items-center justify-center min-h-[120px]"
+            class="border-2 border-dashed rounded-lg p-3 sm:p-4 cursor-pointer transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-500 border-zinc-300 dark:border-zinc-600 flex flex-col items-center justify-center min-h-[120px]"
             @click="nuevaEmpresa">
             <div class="text-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto text-indigo-500 dark:text-indigo-400"
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto text-blue-500 dark:text-blue-400"
                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
-              <h4 class="font-semibold text-indigo-600 dark:text-indigo-400 text-sm sm:text-base mt-2">Crear nueva
+              <h4 class="font-semibold text-blue-600 dark:text-blue-400 text-sm sm:text-base mt-2">Crear nueva
                 empresa</h4>
               <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Registre una nueva organización</p>
             </div>
@@ -61,12 +61,12 @@
           <!-- Tarjetas de empresas existentes -->
           <div v-for="empresa in empresas" :key="empresa.empresa_id"
             class="border rounded-lg p-3 sm:p-4 cursor-pointer transition-all duration-200" :class="{
-              'border-indigo-500 dark:border-indigo-400 bg-indigo-50 dark:bg-indigo-900/30': empresaSeleccionada?.empresa_id === empresa.empresa_id,
-              'border-zinc-200 dark:border-zinc-700 hover:border-indigo-300 dark:hover:border-indigo-500': empresaSeleccionada?.empresa_id !== empresa.empresa_id
+              'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/30': empresaSeleccionada?.empresa_id === empresa.empresa_id,
+              'border-zinc-200 dark:border-zinc-700 hover:border-blue-300 dark:hover:border-blue-500': empresaSeleccionada?.empresa_id !== empresa.empresa_id
             }" @click="seleccionarEmpresa(empresa)">
             <div class="space-y-1 sm:space-y-2">
               <h4 class="font-semibold text-zinc-800 dark:text-zinc-100 text-sm sm:text-base">{{ empresa.empresa_nombre
-                }}</h4>
+              }}</h4>
               <p class="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">RUC: {{ empresa.ruc }}</p>
               <p class="text-xs text-zinc-500 dark:text-zinc-500">
                 Registrada el: {{ formatDate(empresa.created_at) }}
@@ -77,7 +77,7 @@
 
         <div class="flex justify-center pt-4 sm:pt-6">
           <button @click="continuarDashboard"
-            class="px-5 py-2 sm:px-6 sm:py-3 bg-indigo-600 dark:bg-indigo-500 text-white rounded-lg hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm sm:text-base"
+            class="px-5 py-2 sm:px-6 sm:py-3 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center text-sm sm:text-base"
             :disabled="!empresaSeleccionada">
             Continuar al Dashboard
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 inline-block ml-1" viewBox="0 0 20 20"
@@ -91,7 +91,7 @@
       </div>
       <!-- Botón flotante -->
       <button @click="nuevaEmpresa"
-        class="fixed bottom-6 right-6 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        class="fixed bottom-6 right-6 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         title="Crear nueva empresa">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

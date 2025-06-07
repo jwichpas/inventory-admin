@@ -2,7 +2,7 @@
   <div class="container mx-auto px-4 py-8">
     <!-- Encabezado -->
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">Detalle de Compras</h1>
+      <h1 class="text-2xl font-bold text-gray-800">Detalle de Compras con flete</h1>
       <div class="bg-blue-100 px-4 py-2 rounded-md">
         <span class="font-medium">RUC:</span>
         <span class="ml-2">{{ empresaRuc }}</span>

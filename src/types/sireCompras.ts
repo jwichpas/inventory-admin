@@ -9,6 +9,16 @@ export interface Montos {
   // Agrega otros campos de montos si existen
 }
 
+export interface Archivo {
+  compra_id: BigInteger
+  xml: string
+}
+
+export interface ClasificacionCompra {
+  tipo_proveedor: string
+  estado: string
+}
+
 export interface Invoice {
   id: string
   nom_razon_social_proveedor: string
@@ -24,11 +34,8 @@ export interface Invoice {
   mto_total_cp: number
   montos: Montos
   archivo: Archivo
+  clasificaciones?: ClasificacionCompra[]
   // Agrega otros campos que puedan existir
-}
-export interface Archivo {
-  compra_id: BigInteger
-  xml: string
 }
 
 export interface Pagination {

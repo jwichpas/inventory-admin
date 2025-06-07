@@ -1,10 +1,10 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div>
     <!-- Encabezado -->
     <div class="flex justify-between items-center mb-6">
-      <h1 class="text-2xl font-bold text-gray-800">Detalle de Compras</h1>
+      <h1 class="text-2xl font-bold text-gray-800 dark:text-zinc-100">Detalle de Compras para costear</h1>
       <div class="flex items-center space-x-4">
-        <div class="bg-blue-100 px-4 py-2 rounded-md">
+        <div class="bg-indigo-100 dark:bg-indigo-900 px-4 py-2 rounded-md">
           <span class="font-medium">RUC:</span>
           <span class="ml-2">{{ empresaRuc }}</span>
         </div>
@@ -22,31 +22,31 @@
     </div>
 
     <!-- Filtros -->
-    <div class="mb-6 bg-white p-4 rounded-lg shadow">
+    <div class="mb-6 bg-white dark:bg-zinc-950 p-4 rounded-lg shadow border border-zinc-100 dark:border-zinc-800">
       <div class="flex flex-wrap gap-4">
         <div class="w-full md:w-auto">
           <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Desde</label>
           <input type="date" v-model="compraStore.filters.fechaDesde"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
         </div>
         <div class="w-full md:w-auto">
           <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Hasta</label>
           <input type="date" v-model="compraStore.filters.fechaHasta"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
         </div>
         <div class="w-full md:w-64">
           <label class="block text-sm font-medium text-gray-700 mb-1">Buscar (Doc/Proveedor)</label>
           <input type="text" v-model="compraStore.filters.searchQuery" placeholder="N° documento o proveedor"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
         </div>
         <div class="w-full md:w-64">
           <label class="block text-sm font-medium text-gray-700 mb-1">Buscar por ítem</label>
           <input type="text" v-model="compraStore.filters.searchItem" placeholder="Nombre del ítem"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" />
+            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" />
         </div>
         <div class="w-full md:w-auto flex items-end space-x-2">
           <button @click="fetchCompras"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center">
+            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex items-center">
             <MagnifyingGlassIcon class="h-5 w-5 mr-2" />
             Buscar
           </button>
@@ -61,110 +61,107 @@
 
     <!-- Loading State -->
     <div v-if="compraStore.loading" class="flex justify-center py-8">
-      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
     </div>
 
     <!-- Error State -->
-    <div v-if="compraStore.error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded">
+    <div v-if="compraStore.error"
+      class="bg-red-100 dark:bg-red-900 border-l-4 border-red-500 text-red-700 dark:text-red-200 p-4 mb-6 rounded">
       <p>{{ compraStore.error }}</p>
     </div>
 
     <!-- Tabla de Compras -->
     <div v-if="!compraStore.loading && !compraStore.error">
-      <div v-if="compraStore.compras.length === 0" class="bg-white p-8 rounded-lg shadow text-center">
-        <p class="text-gray-500">No se encontraron compras con los filtros seleccionados</p>
+      <div v-if="compraStore.compras.length === 0" class="bg-white dark:bg-zinc-950 p-8 rounded-lg shadow text-center">
+        <p class="text-gray-500 dark:text-zinc-400">No se encontraron compras con los filtros seleccionados</p>
       </div>
 
-      <div v-for="compra in compraStore.compras" :key="compra.id" class="mb-8">
-        <!-- Encabezado de Compra -->
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-          <div class="px-4 py-5 sm:px-6 bg-gray-50 border-b border-gray-200 cursor-pointer" @click="openModal(compra)">
-            <div class="flex flex-wrap justify-between items-center">
-              <div>
-                <h3 class="text-lg font-medium leading-6 text-gray-900">
-                  {{ compra.des_tipo_cdp }} {{ compra.num_serie_cdp }}-{{ compra.num_cdp }}
-                </h3>
-                <p class="mt-1 text-sm text-gray-500">
-                  Proveedor: {{ compra.nom_razon_social_proveedor }} ({{ compra.num_doc_identidad_proveedor }})
-                </p>
+      <!-- IDEA: Tarjeta por compra, items en tabla simplificada y colapsable -->
+      <div v-for="compra in compraStore.compras" :key="compra.id" class="mb-6">
+        <div class="bg-white dark:bg-zinc-950 shadow rounded-xl border border-zinc-100 dark:border-zinc-800">
+          <div
+            class="flex flex-col md:flex-row md:justify-between md:items-center px-4 py-4 bg-gray-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="text-indigo-700 dark:text-indigo-400 font-semibold">{{ compra.des_tipo_cdp }}</span>
+                <span class="text-gray-900 dark:text-zinc-100 font-bold">{{ compra.num_serie_cdp }}-{{ compra.num_cdp
+                }}</span>
               </div>
-              <div class="text-right">
-                <p class="text-sm text-gray-500">
-                  <span class="font-medium">Fecha:</span> {{ formatDate(compra.fec_emision) }}
-                </p>
-                <p class="text-lg font-bold">
-                  Total: {{ compra.cod_moneda }} {{ compra.mto_total_cp }}
-                </p>
+              <div class="text-xs text-gray-500 dark:text-zinc-400 mt-1">
+                Proveedor: <span class="font-medium">{{ compra.nom_razon_social_proveedor }}</span>
+                ({{ compra.num_doc_identidad_proveedor }})
+              </div>
+              <div class="text-xs text-gray-500 dark:text-zinc-400">
+                Fecha: {{ formatDate(compra.fec_emision) }}
               </div>
             </div>
+            <div class="flex flex-col items-end mt-2 md:mt-0 gap-2">
+              <div class="text-lg font-bold text-gray-900 dark:text-zinc-100">
+                {{ compra.cod_moneda }} {{ compra.mto_total_cp }}
+              </div>
+              <router-link :to="`/sire/compras-detalles/${compra.id}`"
+                class="inline-block px-3 py-1 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-xs font-medium">
+                Costear Flete
+              </router-link>
+              <button @click="openGuiaModal(compra.id)"
+                class="inline-block px-3 py-1 bg-amber-600 text-white rounded hover:bg-amber-700 text-xs font-medium">
+                Descargar Guía
+              </button>
+            </div>
           </div>
-
-          <!-- Tabla de Items -->
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-              <thead class="bg-gray-50">
-                <tr>
-                  <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Descripción
-                  </th>
-                  <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Cantidad
-                  </th>
-                  <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Precio Unitario
-                  </th>
-                  <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Subtotal
-                  </th>
-                  <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    IGV
-                  </th>
-                  <th scope="col"
-                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
-                  </th>
-                </tr>
-              </thead>
-              <tbody class="bg-white divide-y divide-gray-200">
-                <tr v-for="item in compra.items" :key="item.id">
-                  <td class="px-6 py-4  w-xl ellipsis text-sm text-gray-900">
-                    {{ item.description }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ item.invoicedQuantity }} {{ item.unitCode }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ compra.cod_moneda }} {{ item.priceAmount }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ compra.cod_moneda }} {{ item.taxableAmount }}
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {{ compra.cod_moneda }} {{ item.taxAmount }} ({{ item.percent }}%)
-                  </td>
-                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {{ compra.cod_moneda }} {{ (parseFloat(item.taxableAmount) + parseFloat(item.taxAmount)).toFixed(2)
-                    }}
-                  </td>
-                </tr>
-              </tbody>
-              <tfoot class="bg-gray-50">
-                <tr>
-                  <td colspan="5" class="px-6 py-3 text-right text-sm font-medium text-gray-500">
-                    Total Compra:
-                  </td>
-                  <td class="px-6 py-3 text-sm font-bold text-gray-900">
-                    {{ compra.cod_moneda }} {{ compra.mto_total_cp }}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
+          <!-- Items colapsables -->
+          <details class="transition-all duration-200">
+            <summary
+              class="cursor-pointer px-4 py-2 text-sm text-indigo-700 dark:text-indigo-400 hover:underline select-none">
+              Ver items ({{ compra.items.length }})
+            </summary>
+            <div class="overflow-x-auto px-4 pb-4">
+              <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-800 mt-2">
+                <thead class="bg-gray-100 dark:bg-zinc-900">
+                  <tr>
+                    <th
+                      class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase w-64 max-w-xs truncate">
+                      Descripción
+                    </th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">Cant.
+                    </th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">P.
+                      Unit.</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">
+                      Subtotal</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">IGV
+                    </th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase">Total
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-zinc-950 divide-y divide-gray-200 dark:divide-zinc-800">
+                  <tr v-for="item in compra.items" :key="item.id">
+                    <td class="px-3 py-2 text-sm text-ellipsis text-gray-900 dark:text-zinc-100 max-w-xs "
+                      style="max-width: 36rem;" :title="item.description">
+                      {{ item.description }}
+                    </td>
+                    <td class="px-3 py-2 text-sm text-gray-700 dark:text-zinc-300">
+                      {{ item.invoicedQuantity }} {{ item.unitCode }}
+                    </td>
+                    <td class="px-3 py-2 text-sm text-gray-700 dark:text-zinc-300">
+                      {{ compra.cod_moneda }} {{ item.priceAmount }}
+                    </td>
+                    <td class="px-3 py-2 text-sm text-gray-700 dark:text-zinc-300">
+                      {{ compra.cod_moneda }} {{ item.taxableAmount }}
+                    </td>
+                    <td class="px-3 py-2 text-sm text-gray-700 dark:text-zinc-300">
+                      {{ compra.cod_moneda }} {{ item.taxAmount }} ({{ item.percent }}%)
+                    </td>
+                    <td class="px-3 py-2 text-sm font-medium text-gray-900 dark:text-zinc-100">
+                      {{ compra.cod_moneda }} {{ (parseFloat(item.taxableAmount) +
+                        parseFloat(item.taxAmount)).toFixed(2) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
         </div>
       </div>
     </div>
@@ -193,7 +190,7 @@
               <ChevronLeftIcon class="h-5 w-5" aria-hidden="true" />
             </button>
             <button v-for="page in visiblePages" :key="page" @click="goToPage(page)" :class="{
-              'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600': compraStore.pagination.currentPage === page,
+              'z-10 bg-indigo-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600': compraStore.pagination.currentPage === page,
               'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-offset-0': compraStore.pagination.currentPage !== page
             }" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold">
               {{ page }}
@@ -319,7 +316,7 @@
 
                 <div class="mt-6 flex justify-end">
                   <button type="button"
-                    class="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    class="inline-flex justify-center rounded-md border border-transparent bg-indigo-100 px-4 py-2 text-sm font-medium text-indigo-900 hover:bg-indigo-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                     @click="closeModal">
                     Cerrar
                   </button>
@@ -330,6 +327,10 @@
         </div>
       </Dialog>
     </TransitionRoot>
+
+    <!-- Modal de Guía de Remisión -->
+    <GuiaRemisionModal :isOpen="guiaModalOpen" :compraId="guiaCompraId" @close="closeGuiaModal"
+      :onClose="closeGuiaModal" />
   </div>
 </template>
 
@@ -354,6 +355,7 @@ import * as XLSX from 'xlsx'
 import { jsPDF } from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { Compra } from '@/types/compras'
+import GuiaRemisionModal from '@/components/GuiaRemisionModal.vue'
 
 // Store
 const compraStore = useCompraStore()
@@ -362,6 +364,8 @@ const compraStore = useCompraStore()
 const empresaRuc = ref(localStorage.getItem('empresaRuc') || '')
 const isOpen = ref(false)
 const selectedCompra = ref<Compra | null>(null)
+const guiaModalOpen = ref(false)
+const guiaCompraId = ref<number | null>(null)
 
 // Paginación visible (máximo 5 páginas)
 const visiblePages = computed(() => {
@@ -446,6 +450,17 @@ const openModal = (compra: Compra) => {
 
 const closeModal = () => {
   isOpen.value = false
+}
+
+// Modal de Guía de Remisión
+const openGuiaModal = (id: number) => {
+  guiaCompraId.value = id
+  guiaModalOpen.value = true
+}
+
+const closeGuiaModal = () => {
+  guiaModalOpen.value = false
+  guiaCompraId.value = null
 }
 
 // Exportar a Excel
